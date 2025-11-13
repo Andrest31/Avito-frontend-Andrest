@@ -1,0 +1,439 @@
+.page {
+  min-height: 100vh;
+  background: #f3f4f6;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  max-width: 1120px;
+  margin: 24px auto 40px;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.backButton {
+  align-self: flex-start;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+}
+
+.badgesRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.dot {
+  color: #d1d5db;
+}
+
+.headerRight {
+  text-align: right;
+  min-width: 180px;
+}
+
+.priceTopLabel {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.priceTopValue {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  gap: 16px;
+  margin-top: 8px;
+}
+
+/* Общая карточка */
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 16px 18px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section {
+  margin-top: 14px;
+}
+
+.sectionTitle {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+/* Галерея */
+.gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mainImage {
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+  max-height: 380px;
+}
+
+.thumbnails {
+  display: flex;
+  gap: 8px;
+}
+
+.thumbnailButton {
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.thumbnail {
+  width: 100px;
+  height: 70px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Описание */
+.description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Характеристики */
+.characteristicsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 4px;
+}
+
+.characteristicsKey {
+  width: 35%;
+  font-size: 13px;
+  padding: 6px 10px;
+  background: #f9fafb;
+  color: #6b7280;
+}
+
+.characteristicsValue {
+  font-size: 13px;
+  padding: 6px 10px;
+}
+
+.characteristicsTable tr + tr .characteristicsKey,
+.characteristicsTable tr + tr .characteristicsValue {
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Статус / приоритет */
+.status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status_pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status_approved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status_rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.priorityBadge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.priorityBadgeUrgent {
+  background: #be123c;
+  color: #fef2f2;
+}
+
+/* История модерации */
+.historyCard {
+  margin-top: 4px;
+}
+
+.historyList {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  position: relative;
+}
+
+.historyItem {
+  position: relative;
+  padding-left: 20px;
+  padding-bottom: 10px;
+}
+
+.historyBullet {
+  position: absolute;
+  left: 4px;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #4f46e5;
+}
+
+.historyLine {
+  position: absolute;
+  left: 7px;
+  top: 14px;
+  width: 2px;
+  height: calc(100% - 8px);
+  background: #e5e7eb;
+}
+
+.historyContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.historyTopRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.historyModerator {
+  font-weight: 600;
+}
+
+.historyDecision {
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.historyDate {
+  margin-left: auto;
+  color: #9ca3af;
+}
+
+.historyComment {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+/* Правая колонка: модерация */
+.sideBlockHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.sideBlockTitle {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sideBlockHint {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.moderationButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.actionButton {
+  width: 100%;
+  border-radius: 999px;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.actionApprove {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.actionReject {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.actionReturn {
+  background: #fef9c3;
+  color: #92400e;
+}
+
+/* Причина */
+.reasonBlock {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reasonLabel {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.reasonTemplates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.reasonChip {
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.reasonInput {
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+
+/* Продавец */
+.sellerHeader {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.sellerAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.sellerName {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sellerStatus {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Навигация по объявлениям */
+.navRow {
+  display: flex;
+  gap: 8px;
+}
+
+.navButton {
+  flex: 1;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  padding: 8px 10px;
+  font-size: 13px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+/* Адаптив */
+@media (max-width: 960px) {
+  .main {
+    margin: 16px auto 32px;
+    padding: 0 16px;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .headerRight {
+    text-align: left;
+  }
+}

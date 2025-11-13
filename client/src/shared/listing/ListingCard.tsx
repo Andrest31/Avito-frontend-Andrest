@@ -1,18 +1,28 @@
 import React from "react";
 import styles from "./ListingCard.module.scss";
 
+export type ModerationStatus = "pending" | "approved" | "rejected";
+export type Priority = "normal" | "urgent";
+
 export type Listing = {
   id: number;
   title: string;
   price: string;
-  location: string;
-  date: string;
+  category: string;
+  status: ModerationStatus;
+  priority: Priority;
+  createdAt: string;
   image: string;
-  badge?: string;
 };
 
 type Props = {
   item: Listing;
+};
+
+const statusLabel: Record<ModerationStatus, string> = {
+  pending: "На модерации",
+  approved: "Одобрено",
+  rejected: "Отклонено",
 };
 
 export const ListingCard: React.FC<Props> = ({ item }) => {
@@ -20,20 +30,30 @@ export const ListingCard: React.FC<Props> = ({ item }) => {
     <article className={styles.card}>
       <div className={styles.imageWrapper}>
         <img src={item.image} alt={item.title} className={styles.image} />
-        {item.badge && <span className={styles.badge}>{item.badge}</span>}
+        <div className={styles.statusPills}>
+          <span
+            className={`${styles.status} ${styles[`status_${item.status}`]}`}
+          >
+            {statusLabel[item.status]}
+          </span>
+          <span
+            className={`${styles.priority} ${
+              item.priority === "urgent" ? styles.priorityUrgent : ""
+            }`}
+          >
+            {item.priority === "urgent" ? "Срочное" : "Обычное"}
+          </span>
+        </div>
       </div>
       <div className={styles.body}>
         <h2 className={styles.title}>{item.title}</h2>
         <div className={styles.priceRow}>
           <span className={styles.price}>{item.price}</span>
-          <button type="button" className={styles.favorite}>
-            ♡
-          </button>
         </div>
         <div className={styles.meta}>
-          <span>{item.location}</span>
+          <span>{item.category}</span>
           <span className={styles.dot}>•</span>
-          <span>{item.date}</span>
+          <span>{item.createdAt}</span>
         </div>
       </div>
     </article>

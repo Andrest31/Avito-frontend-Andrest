@@ -4,17 +4,38 @@ import styles from "./SidebarFilters.module.scss";
 export const SidebarFilters: React.FC = () => {
   return (
     <aside className={styles.sidebar}>
+      {/* Статус модерации — множественный выбор по ТЗ */}
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Статус</h2>
+        <label className={styles.checkbox}>
+          <input type="checkbox" defaultChecked />
+          <span>На модерации</span>
+        </label>
+        <label className={styles.checkbox}>
+          <input type="checkbox" />
+          <span>Одобрено</span>
+        </label>
+        <label className={styles.checkbox}>
+          <input type="checkbox" />
+          <span>Отклонено</span>
+        </label>
+      </div>
+
+      {/* Категория объявлений */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Категория</h2>
         <div className={styles.chips}>
-          <button type="button" className={`${styles.chip} ${styles.chipActive}`}>
-            Техника
+          <button
+            type="button"
+            className={`${styles.chip} ${styles.chipActive}`}
+          >
+            Электроника
           </button>
           <button type="button" className={styles.chip}>
             Мебель
           </button>
           <button type="button" className={styles.chip}>
-            Недвижимость
+            Одежда
           </button>
           <button type="button" className={styles.chip}>
             Услуги
@@ -22,6 +43,20 @@ export const SidebarFilters: React.FC = () => {
         </div>
       </div>
 
+      {/* Приоритет */}
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Приоритет</h2>
+        <label className={styles.checkbox}>
+          <input type="checkbox" defaultChecked />
+          <span>Обычные</span>
+        </label>
+        <label className={styles.checkbox}>
+          <input type="checkbox" defaultChecked />
+          <span>Срочные</span>
+        </label>
+      </div>
+
+      {/* Диапазон цен */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Цена, ₽</h2>
         <div className={styles.priceRange}>
@@ -31,20 +66,7 @@ export const SidebarFilters: React.FC = () => {
         </div>
         <label className={styles.checkbox}>
           <input type="checkbox" />
-          <span>Только с ценой</span>
-        </label>
-      </div>
-
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Расположение</h2>
-        <input
-          type="text"
-          className={styles.locationInput}
-          placeholder="Город или метро"
-        />
-        <label className={styles.checkbox}>
-          <input type="checkbox" />
-          <span>Только рядом со мной</span>
+          <span>Только с указанной ценой</span>
         </label>
       </div>
 

@@ -1,80 +1,47 @@
-.card {
-  background: #ffffff;
-  border-radius: 18px;
-  overflow: hidden;
-  border: 1px solid #e5e7eb;
-  transition:
-    transform 0.18s ease-out,
-    box-shadow 0.18s ease-out;
-  cursor: pointer;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
-  }
-}
-
-.imageWrapper {
-  position: relative;
-  overflow: hidden;
-}
-
-.image {
-  width: 100%;
-  display: block;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-}
-
-.badge {
+.statusPills {
   position: absolute;
-  left: 10px;
-  bottom: 10px;
-  padding: 4px 8px;
+  left: 8px;
+  top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.status {
+  padding: 3px 8px;
   border-radius: 999px;
   font-size: 11px;
-  background: rgba(15, 118, 110, 0.94);
-  color: #ecfeff;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
 }
 
-.body {
-  padding: 10px 12px 12px;
+.status_pending {
+  background: rgba(254, 243, 199, 0.95);
+  color: #92400e;
 }
 
-.title {
-  margin: 0 0 6px;
-  font-size: 14px;
+.status_approved {
+  background: rgba(220, 252, 231, 0.95);
+  color: #166534;
 }
 
-.priceRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
+.status_rejected {
+  background: rgba(254, 226, 226, 0.95);
+  color: #b91c1c;
 }
 
-.price {
-  font-weight: 700;
-  font-size: 15px;
-}
-
-.favorite {
+.priority {
+  padding: 2px 7px;
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  width: 24px;
-  height: 24px;
-  font-size: 13px;
-  background: #fff;
-  cursor: pointer;
-}
-
-.meta {
-  display: flex;
-  gap: 4px;
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.dot {
   font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(15, 23, 42, 0.65);
+  color: #e5e7eb;
+}
+
+.priorityUrgent {
+  background: #be123c;
+  color: #fef2f2;
 }
