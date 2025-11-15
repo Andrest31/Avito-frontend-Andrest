@@ -54,13 +54,11 @@ export const ListingsPage: React.FC = () => {
   const [sortKey, setSortKey] = useState<SortKey>("date_desc");
   const [currentPage, setCurrentPage] = useState(1);
 
-  // сбрасываем страницу при изменении фильтров
   const handleFiltersChange = (next: Filters) => {
     setFilters(next);
     setCurrentPage(1);
   };
 
-  // и при изменении сортировки тоже
   const handleSortChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ): void => {
@@ -75,8 +73,11 @@ export const ListingsPage: React.FC = () => {
   const filteredAndSorted: ListingWithMeta[] = useMemo(() => {
     let result = [...mockListings];
 
-    // фильтрация
-    result = result.filter((item) => filters.statuses.includes(item.status));
+    if (filters.statuses.length > 0) {
+      result = result.filter((item) =>
+        filters.statuses.includes(item.status)
+      );
+    }
 
     if (filters.categories.length > 0) {
       result = result.filter((item) =>
@@ -110,9 +111,9 @@ export const ListingsPage: React.FC = () => {
         case "price_desc":
           return b.priceValue - a.priceValue;
         case "date_asc":
-          return a.createdOrder - b.createdOrder;
-        case "date_desc":
           return b.createdOrder - a.createdOrder;
+        case "date_desc":
+          return a.createdOrder - b.createdOrder;
         case "priority":
           return (
             b.priorityWeight - a.priorityWeight ||

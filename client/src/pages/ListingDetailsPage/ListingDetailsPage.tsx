@@ -104,8 +104,6 @@ const decisionLabel: Record<ModerationDecision, string> = {
 
 export const ListingDetailsPage: React.FC = () => {
   const navigate = useNavigate();
-
-  // потом тут можно будет грузить данные по id
   const listing = mockListing;
 
   return (
@@ -163,7 +161,6 @@ export const ListingDetailsPage: React.FC = () => {
         </header>
 
         <div className={styles.layout}>
-          {/* ЛЕВАЯ КОЛОНКА */}
           <section className={styles.left}>
             <div className={styles.card}>
               <div className={styles.gallery}>
@@ -242,7 +239,6 @@ export const ListingDetailsPage: React.FC = () => {
             </section>
           </section>
 
-          {/* ПРАВАЯ КОЛОНКА */}
           <aside className={styles.right}>
             <div className={styles.card}>
               <div className={styles.sideBlockHeader}>

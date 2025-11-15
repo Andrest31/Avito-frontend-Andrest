@@ -64,6 +64,21 @@
   text-transform: uppercase;
 }
 
+.status_pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status_approved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status_rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
 .priorityBadge {
   padding: 3px 10px;
   border-radius: 999px;

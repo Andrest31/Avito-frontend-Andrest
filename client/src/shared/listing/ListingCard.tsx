@@ -59,10 +59,6 @@ export const ListingCard: React.FC<Props> = ({ item }) => {
           <span>{item.createdAt}</span>
         </div>
       </div>
-
-      <div className={styles.footer}>
-        <div className={styles.openPseudoButton}>Открыть</div>
-      </div>
     </article>
   );
 };
