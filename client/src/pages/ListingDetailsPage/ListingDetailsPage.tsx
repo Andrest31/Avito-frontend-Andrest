@@ -129,7 +129,6 @@ export const ListingDetailsPage: React.FC = () => {
   };
 
   const openReasonModal = (decision: ModerationDecision) => {
-    // Одобрить — без модалки
     if (decision === "approved") {
       applyDecision("approved");
       return;
@@ -231,7 +230,6 @@ export const ListingDetailsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* ЦЕНА — справа, высоко как в макете */}
           <div className={styles.headerRight}>
             <div className={styles.priceTopLabel}>Цена</div>
             <div className={styles.priceTopValue}>{listing.price}</div>
@@ -417,7 +415,6 @@ export const ListingDetailsPage: React.FC = () => {
           </aside>
         </div>
 
-        {/* Модалка выбора причины */}
         {isModalOpen && (
           <div className={styles.modalBackdrop}>
             <div className={styles.modal}>

@@ -167,8 +167,7 @@ function buildModerationHistory(
     comment: "Объявление создано и отправлено на модерацию.",
   });
 
-  // немного сдвигаем во времени
-  const second = new Date(createdDate.getTime() + 1000 * 60 * 30); // +30 минут
+  const second = new Date(createdDate.getTime() + 1000 * 60 * 30);
 
   if (status === "pending") {
     return history;
@@ -185,7 +184,6 @@ function buildModerationHistory(
     return history;
   }
 
-  // rejected
   const reason = REJECT_REASONS[id % REJECT_REASONS.length];
   history.push({
     id: 2,
@@ -208,7 +206,7 @@ function buildListing(id: number): ListingWithMeta {
   const price = `${priceValue.toLocaleString("ru-RU")} ₽`;
 
   const now = new Date();
-  const daysAgo = Math.floor(pseudoRandom(id, 5) * 30); // в пределах месяца
+  const daysAgo = Math.floor(pseudoRandom(id, 5) * 30);
   const createdDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
   const createdAt = createdDate.toLocaleString("ru-RU", {
     dateStyle: "short",
@@ -258,8 +256,6 @@ export const mockListings: ListingWithMeta[] = Array.from(
   (_, i) => buildListing(i + 1)
 );
 
-// ==== LocalStorage ====
-
 export function getInitialListings(): ListingWithMeta[] {
   if (typeof window === "undefined" || !("localStorage" in window)) {
     return mockListings;
@@ -280,6 +276,6 @@ export function saveListingsState(list: ListingWithMeta[]): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
   } catch {
-    // забиваем, если что-то пошло не так
+    // 
   }
 }

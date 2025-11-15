@@ -48,6 +48,36 @@ const defaultFilters: Filters = {
   onlyWithPrice: false,
 };
 
+const parseCreatedAt = (createdAt: string): number => {
+  try {
+    const [datePart, timePart] = createdAt.split(",");
+    if (!datePart || !timePart) return 0;
+
+    const [dayStr, monthStr, yearStr] = datePart.trim().split(".");
+    const [hourStr, minuteStr] = timePart.trim().split(":");
+
+    const day = Number(dayStr);
+    const month = Number(monthStr);
+    const year = Number(yearStr);
+    const hour = Number(hourStr);
+    const minute = Number(minuteStr);
+
+    if (
+      Number.isNaN(day) ||
+      Number.isNaN(month) ||
+      Number.isNaN(year) ||
+      Number.isNaN(hour) ||
+      Number.isNaN(minute)
+    ) {
+      return 0;
+    }
+
+    return new Date(year, month - 1, day, hour, minute).getTime();
+  } catch {
+    return 0;
+  }
+};
+
 export const ListingsPage: React.FC = () => {
   const [listings] = useState<ListingWithMeta[]>(() => getInitialListings());
   const [filters, setFilters] = useState<Filters>(defaultFilters);
@@ -113,21 +143,25 @@ export const ListingsPage: React.FC = () => {
       );
     }
 
-    // сортировка (как у тебя было)
     result.sort((a, b) => {
+      const aDate = parseCreatedAt(a.createdAt);
+      const bDate = parseCreatedAt(b.createdAt);
+
       switch (sortKey) {
         case "price_asc":
           return a.priceValue - b.priceValue;
         case "price_desc":
           return b.priceValue - a.priceValue;
         case "date_asc":
-          return b.createdOrder - a.createdOrder;
+          // старые сверху
+          return aDate - bDate;
         case "date_desc":
-          return a.createdOrder - b.createdOrder;
+          // новые сверху
+          return bDate - aDate;
         case "priority":
           return (
             b.priorityWeight - a.priorityWeight ||
-            b.createdOrder - a.createdOrder
+            bDate - aDate
           );
         default:
           return 0;

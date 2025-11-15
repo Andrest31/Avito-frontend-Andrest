@@ -6,7 +6,6 @@ import { StatsPage } from "../pages/StatsPage/StatsPage";
 const App = () => {
   return (
     <Routes>
-      {/* редиректим корень на основную страницу по ТЗ */}
       <Route path="/" element={<Navigate to="/list" replace />} />
       <Route path="/list" element={<ListingsPage />} />
       <Route path="/item/:id" element={<ListingDetailsPage />} />
