@@ -1,13 +1,36 @@
+@keyframes fadeInPage {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .page {
   min-height: 100vh;
   background: linear-gradient(
     135deg,
-    rgba(235, 242, 255, 0.55), 
-    rgba(245, 248, 255, 0.55), 
-    rgba(240, 236, 255, 0.55) 
+    rgba(235, 242, 255, 0.55),   // почти белый голубой
+    rgba(245, 248, 255, 0.55),   // еле уловимый холодный белый
+    rgba(240, 236, 255, 0.55)    // невесомая лавандовая дымка
   );
   display: flex;
   flex-direction: column;
+  animation: fadeInPage 0.35s ease-out;
 }
 
 .main {
@@ -36,7 +59,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  border-radius: 100px;
 }
 
 .title {
@@ -50,8 +72,10 @@
   color: #6b7280;
 }
 
+/* переключатель периода (MUI ToggleButtonGroup) */
+
 .periodSwitch {
-  display: inline-flex;
+  display: inline-flex !important;
   gap: 4px;
   background: rgba(79, 70, 229, 0.08);
   padding: 4px;
@@ -61,17 +85,17 @@
 .periodButton {
   border-radius: 999px !important;
   padding: 6px 14px !important;
-  font-size: 13px;
+  font-size: 13px !important;
   text-transform: none !important;
   min-width: 0 !important;
   border: none !important;
   background: transparent !important;
   color: #4b5563 !important;
-  cursor: pointer;
+  cursor: pointer !important;
   transition:
     background 0.2s ease,
     color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease !important;
 }
 
 .periodButton:hover {
@@ -81,8 +105,10 @@
 .periodButtonActive {
   background: #4f46e5 !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35) !important;
 }
+
+/* метрики */
 
 .metricsGrid {
   display: grid;
@@ -104,13 +130,14 @@
     box-shadow 0.18s ease-out,
     transform 0.18s ease-out,
     background 0.18s ease-out;
+  animation: cardIn 0.28s ease-out;
+}
 
-  &:hover {
-    border-color: #a855f7;
-    box-shadow: 0 14px 30px rgba(88, 28, 135, 0.22);
-    transform: translateY(-2px);
-    background: #f9f5ff;
-  }
+.metricCard:hover {
+  border-color: #a855f7;
+  box-shadow: 0 14px 30px rgba(88, 28, 135, 0.22);
+  transform: translateY(-2px);
+  background: #f9f5ff;
 }
 
 .metricLabel {
@@ -127,6 +154,8 @@
   font-size: 11px;
   color: #9ca3af;
 }
+
+/* графики */
 
 .chartsGrid {
   margin-top: 16px;
@@ -149,13 +178,14 @@
     box-shadow 0.18s ease-out,
     transform 0.18s ease-out,
     background 0.18s ease-out;
+  animation: cardIn 0.3s ease-out;
+}
 
-  &:hover {
-    border-color: #a855f7;
-    box-shadow: 0 16px 34px rgba(88, 28, 135, 0.24);
-    transform: translateY(-2px);
-    background: #f9f5ff;
-  }
+.chartCard:hover {
+  border-color: #a855f7;
+  box-shadow: 0 16px 34px rgba(88, 28, 135, 0.24);
+  transform: translateY(-2px);
+  background: #f9f5ff;
 }
 
 .chartTitle {
@@ -235,6 +265,8 @@
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.16);
 }
 
+/* легенда */
+
 .legend {
   display: flex;
   flex-direction: column;
@@ -255,15 +287,15 @@
 }
 
 .legendDot1 {
-  background: #22c55e; 
+  background: #22c55e;
 }
 
 .legendDot2 {
-  background: #ef4444; 
+  background: #ef4444;
 }
 
 .legendDot3 {
-  background: #facc15; 
+  background: #facc15;
 }
 
 .legendLabel {
