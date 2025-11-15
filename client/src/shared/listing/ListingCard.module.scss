@@ -9,28 +9,33 @@
   min-height: 260px;
   max-height: 260px;
 }
+
 .cardRow {
   flex-direction: row;
   min-height: auto;
   max-height: none;
   height: 100px;
 }
+
 .imageWrapper {
   position: relative;
   width: 100%;
   height: 130px;
   overflow: hidden;
 }
+
 .cardRow .imageWrapper {
-  width: 180px;
+  width: 220px;
   height: 100px;
   flex-shrink: 0;
 }
+
 .image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .body {
   padding: 8px 10px;
   display: flex;
@@ -38,28 +43,34 @@
   gap: 4px;
   flex: 1 1 auto;
 }
+
 .cardRow .body {
   padding: 10px;
   justify-content: center;
 }
+
 .title {
   font-size: 13px;
   font-weight: 600;
   line-height: 1.3;
   margin: 0;
 }
+
 .cardRow .title {
   font-size: 14px;
 }
+
 .metaTop {
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 13px;
 }
+
 .price {
   font-weight: 700;
 }
+
 .metaBottom {
   display: flex;
   flex-wrap: wrap;
@@ -67,9 +78,15 @@
   font-size: 11px;
   color: #6b7280;
 }
+
 .dot {
   color: #d1d5db;
 }
+
+/* ======================
+   Статусы + приоритет на картинке
+   ====================== */
+
 .statusPills {
   position: absolute;
   left: 8px;
@@ -79,39 +96,121 @@
   gap: 4px;
   align-items: flex-start;
 }
+
 .cardRow .statusPills {
   flex-direction: row;
   gap: 6px;
 }
+
+/* Базовый вид бейджа статуса */
+
 .status {
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 600;
-  backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid transparent;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
 }
+
+.status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+}
+
+/* На модерации */
+
 .status_pending {
-  background: rgba(254, 243, 199, 0.95);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 247, 214, 0.96),
+    rgba(254, 243, 199, 0.96)
+  );
   color: #92400e;
+  border-color: rgba(250, 204, 21, 0.7);
 }
+
+.status_pending::before {
+  background: #f59e0b;
+}
+
+/* Одобрено */
+
 .status_approved {
-  background: rgba(220, 252, 231, 0.95);
+  background: linear-gradient(
+    135deg,
+    rgba(217, 251, 233, 0.96),
+    rgba(187, 247, 208, 0.96)
+  );
   color: #166534;
+  border-color: rgba(74, 222, 128, 0.7);
 }
+
+.status_approved::before {
+  background: #22c55e;
+}
+
+/* Отклонено */
+
 .status_rejected {
-  background: rgba(254, 226, 226, 0.95);
+  background: linear-gradient(
+    135deg,
+    rgba(254, 226, 226, 0.96),
+    rgba(254, 202, 202, 0.96)
+  );
   color: #b91c1c;
+  border-color: rgba(248, 113, 113, 0.7);
 }
+
+.status_rejected::before {
+  background: #ef4444;
+}
+
+/* Приоритет */
+
 .priority {
-  padding: 2px 7px;
+  padding: 3px 9px;
   border-radius: 999px;
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background: rgba(15, 23, 42, 0.65);
-  color: #e5e7eb;
+  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #eef2ff, #e5e7eb);
+  color: #374151;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  backdrop-filter: blur(10px);
 }
+
+.priority::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #9ca3af;
+}
+
+/* Срочное */
+
 .priorityUrgent {
-  background: #be123c;
+  background: linear-gradient(
+    135deg,
+    rgba(248, 113, 113, 0.95),
+    rgba(251, 146, 60, 0.95)
+  );
   color: #fef2f2;
+  border-color: rgba(248, 113, 113, 0.9);
+  box-shadow: 0 7px 16px rgba(248, 113, 113, 0.45);
+}
+
+.priorityUrgent::before {
+  background: #facc15;
 }

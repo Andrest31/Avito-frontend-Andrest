@@ -159,10 +159,7 @@ export const ListingsPage: React.FC = () => {
           // новые сверху
           return bDate - aDate;
         case "priority":
-          return (
-            b.priorityWeight - a.priorityWeight ||
-            bDate - aDate
-          );
+          return b.priorityWeight - a.priorityWeight || bDate - aDate;
         default:
           return 0;
       }
@@ -295,7 +292,17 @@ export const ListingsPage: React.FC = () => {
                         {statusLabel[item.status]}
                       </span>
                     </td>
-                    <td>{priorityLabel[item.priority]}</td>
+                    <td>
+                      <span
+                        className={`${styles.priorityBadge} ${
+                          item.priority === "urgent"
+                            ? styles.priorityBadgeUrgent
+                            : ""
+                        }`}
+                      >
+                        {priorityLabel[item.priority]}
+                      </span>
+                    </td>
                     <td>{item.createdAt}</td>
                   </tr>
                 ))}

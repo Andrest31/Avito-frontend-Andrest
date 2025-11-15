@@ -2,9 +2,9 @@
   min-height: 100vh;
   background: linear-gradient(
     135deg,
-    rgba(235, 242, 255, 0.55),   
-    rgba(245, 248, 255, 0.55),   
-    rgba(240, 236, 255, 0.55)    
+    rgba(235, 242, 255, 0.55),
+    rgba(245, 248, 255, 0.55),
+    rgba(240, 236, 255, 0.55)
   );
   display: flex;
   flex-direction: column;
@@ -19,20 +19,42 @@
   gap: 16px;
 }
 
+/* =====================
+   Навигация «назад»
+   ===================== */
+
 .backButton {
   align-self: flex-start;
   margin-bottom: 8px;
   border-radius: 999px;
   border: 1px solid #e5e7eb;
-  padding: 6px 12px;
-  font-size: 13px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 500;
   background: #ffffff;
   cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
 }
-  .header {
+
+.backButton:hover {
+  border-color: #a855f7;
+  background: #fdf7ff;
+  box-shadow: 0 8px 18px rgba(88, 28, 135, 0.18);
+  transform: translateY(-1px);
+}
+
+/* =====================
+   Заголовок
+   ===================== */
+
+.header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; 
+  align-items: flex-start;
   margin-bottom: 20px;
 }
 
@@ -53,7 +75,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  margin-top: 4px; 
+  margin-top: 4px;
 }
 
 .priceTopLabel {
@@ -78,41 +100,99 @@
   gap: 8px;
 }
 
+/* =====================
+   Статусы
+   ===================== */
+
+/* Базовый вид статуса */
 .status {
-  padding: 3px 10px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid transparent;
+  letter-spacing: 0.4px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+}
+
+/* На модерации — нейтральный */
+.status_pending {
+  background: linear-gradient(135deg, #fff7d6, #fef3c7);
+  color: #92400e;
+  border-color: #fcd34d88;
+}
+
+.status_pending::before {
+  background: #f59e0b;
+}
+
+/* Одобрено — холодно-зелёный градиент */
+.status_approved {
+  background: linear-gradient(135deg, #d9fbe9, #bbf7d0);
+  color: #166534;
+  border-color: #4ade8088;
+}
+
+.status_approved::before {
+  background: #22c55e;
+}
+
+/* Отклонено — мягкий красный */
+.status_rejected {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #b91c1c;
+  border-color: #f8717188;
+}
+
+.status_rejected::before {
+  background: #ef4444;
+}
+
+
+.priorityBadge {
+  padding: 4px 12px;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 500;
-  text-transform: uppercase;
-}
-
-.status_pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.status_approved {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.status_rejected {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
-.priorityBadge {
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  background: #e5e7eb;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #eef2ff, #e5e7eb);
   color: #374151;
+  border: 1px solid rgba(148, 163, 184, 0.7);
 }
+
+.priorityBadge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #9ca3af; // нейтральная точка
+}
+
 
 .priorityBadgeUrgent {
-  background: #be123c;
+  background: linear-gradient(135deg, #f97373, #fb923c);
   color: #fef2f2;
+  border-color: rgba(248, 113, 113, 0.9);
+  box-shadow: 0 6px 14px rgba(248, 113, 113, 0.45);
 }
+
+.priorityBadgeUrgent::before {
+  background: #facc15; // жёлтый индикатор «горит»
+}
+
 
 .metaRow {
   display: flex;
@@ -126,15 +206,9 @@
   color: #d1d5db;
 }
 
-.priceTopLabel {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.priceTopValue {
-  font-size: 22px;
-  font-weight: 700;
-}
+/* =====================
+   Макет
+   ===================== */
 
 .layout {
   display: flex;
@@ -156,6 +230,10 @@
   flex-direction: column;
   gap: 16px;
 }
+
+/* =====================
+   Галерея
+   ===================== */
 
 .gallery {
   background: #ffffff;
@@ -185,14 +263,29 @@
   padding: 0;
   background: transparent;
   cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  transition:
+    outline 0.18s ease,
+    transform 0.18s ease;
 }
 
-.thumbnail {
+.thumbnailButtonActive {
+  outline: 2px solid #4f46e5;
+  transform: translateY(-1px);
+}
+
+.thumbnail,
+.thumbnailImage {
   width: 64px;
   height: 48px;
   border-radius: 8px;
   object-fit: cover;
 }
+
+/* =====================
+   Карточки
+   ===================== */
 
 .card {
   background: #ffffff;
@@ -236,6 +329,10 @@
   color: #111827;
 }
 
+/* =====================
+   Продавец
+   ===================== */
+
 .sellerHeader {
   display: flex;
   align-items: center;
@@ -263,6 +360,10 @@
   font-size: 12px;
   color: #6b7280;
 }
+
+/* =====================
+   Блок решения
+   ===================== */
 
 .sideBlockHeader {
   display: flex;
@@ -292,62 +393,42 @@
   width: 100%;
   border-radius: 999px;
   border: none;
-  padding: 8px 10px;
-  font-size: 13px;
-  font-weight: 500;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    filter 0.18s ease;
 }
 
+/* слегка градиентные статусы */
+
 .actionApprove {
-  background: #16a34a;
+  background: linear-gradient(135deg, #11c754, #16a34a);
   color: #ecfdf5;
 }
 
 .actionReject {
-  background: #dc2626;
+  background: linear-gradient(135deg, #fe4040, #dc2626);
   color: #fef2f2;
 }
 
 .actionReturn {
-  background: #facc15;
+  background: linear-gradient(135deg, #fcd848, #facc15);
   color: #451a03;
 }
 
-.reasonBlock {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.actionButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 9px 18px rgba(15, 23, 42, 0.16);
+  filter: brightness(1.02);
 }
 
-.reasonLabel {
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.reasonTemplates {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.reasonChip {
-  border-radius: 999px;
-  border: 1px solid #e5e7eb;
-  padding: 4px 8px;
-  font-size: 12px;
-  background: #f9fafb;
-  cursor: pointer;
-}
-
-.reasonInput {
-  min-height: 60px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  font-size: 13px;
-  resize: vertical;
-}
+/* =====================
+   История
+   ===================== */
 
 .historyCard {
   margin-top: 8px;
@@ -414,6 +495,10 @@
   margin-top: 8px;
 }
 
+/* =====================
+   Навигация между объявлениями
+   ===================== */
+
 .navRow {
   display: flex;
   gap: 8px;
@@ -424,11 +509,155 @@
   flex: 1;
   border-radius: 999px;
   border: 1px solid #e5e7eb;
-  padding: 8px 10px;
-  font-size: 13px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-weight: 500;
   background: #ffffff;
   cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
 }
+
+.navButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
+
+.navButton:not(:disabled):hover {
+  border-color: #a855f7;
+  background: #fdf7ff;
+  box-shadow: 0 8px 18px rgba(88, 28, 135, 0.18);
+  transform: translateY(-1px);
+}
+
+/* =====================
+   Модалка причины отказа
+   ===================== */
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal {
+  width: 420px;
+  max-width: calc(100% - 32px);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.35);
+  padding: 20px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modalReasons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  padding: 6px 0;
+  overflow-y: auto;
+}
+
+.modalReasonRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+
+  input[type="radio"] {
+    accent-color: #4f46e5;
+    cursor: pointer;
+  }
+}
+
+.modalComment {
+  margin-top: 4px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+  resize: vertical;
+  min-height: 70px;
+}
+
+.modalComment:focus {
+  outline: none;
+  border-color: #a855f7;
+  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.35);
+}
+
+/* Кнопки модалки: белая + фиолетовая */
+
+.modalActions {
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modalCancel,
+.modalConfirm {
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    background 0.18s ease-out,
+    border-color 0.18s ease-out,
+    color 0.18s ease-out,
+    box-shadow 0.18s ease-out,
+    transform 0.18s ease-out;
+}
+
+.modalCancel {
+  background: #ffffff;
+  color: #4f46e5;
+  border-color: #d8b4fe;
+}
+
+.modalCancel:hover {
+  background: #fdf7ff;
+  border-color: #a855f7;
+  box-shadow: 0 6px 16px rgba(168, 85, 247, 0.25);
+  transform: translateY(-1px);
+}
+
+.modalConfirm {
+  background: linear-gradient(135deg, #4f46e5, #8b5cf6);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.35);
+}
+
+.modalConfirm:hover {
+  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.45);
+  transform: translateY(-1px);
+}
+
+/* =====================
+   Адаптив
+   ===================== */
 
 @media (max-width: 768px) {
   .main {
@@ -447,5 +676,10 @@
 
   .layout {
     flex-direction: column;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: calc(100% - 24px);
   }
 }
