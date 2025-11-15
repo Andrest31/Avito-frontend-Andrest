@@ -5,9 +5,21 @@
   display: flex;
   align-items: center;
   padding: 14px 32px;
-  background: rgba(245, 247, 251, 0.9);
+
+  // Зимний градиент
+  background: linear-gradient(
+    135deg,
+    rgba(200, 230, 255, 0.75),   // мягкий пастельный голубой
+    rgba(170, 190, 255, 0.75),   // приглушённый синий
+    rgba(210, 185, 255, 0.75)    // пастельный лавандовый
+  );
+
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+
+  // Мягкая тень снизу
+  box-shadow: 0 4px 18px rgba(30, 41, 59, 0.18);
+
+  border-bottom: 1px solid rgba(226, 232, 240, 0.4);
 }
 
 .headerLeft {
@@ -133,6 +145,7 @@
     background: #f8fafc;
   }
 }
+
 .statsButton {
   border-radius: 999px;
   border: 1px solid #e5e7eb;
@@ -141,12 +154,13 @@
   background: #ffffff;
   text-decoration: none;
   color: #111827;
+
   &:clicked {
     background: #4f46e5;
   }
 }
 
-.statsButtonActive{
+.statsButtonActive {
   background: #4f46e5;
   border-color: #4f46e5;
   color: #ffffff;
