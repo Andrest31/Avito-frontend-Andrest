@@ -7,7 +7,12 @@ body::-webkit-scrollbar {
 }
 .page {
   min-height: 100vh;
-  background: rgba(245, 247, 251, 0.9);
+  background: linear-gradient(
+    135deg,
+    rgba(235, 242, 255, 0.55),   // почти белый голубой
+    rgba(245, 248, 255, 0.55),   // еле уловимый холодный белый
+    rgba(240, 236, 255, 0.55)    // невесомая лавандовая дымка
+  );
   display: flex;
   flex-direction: column;
 }
