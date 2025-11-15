@@ -107,8 +107,6 @@ body::-webkit-scrollbar {
   background: #ffffff;
 }
 
-/* переключатель вида */
-
 .viewToggle {
   display: inline-flex;
   gap: 4px;
@@ -146,8 +144,6 @@ body::-webkit-scrollbar {
 .content {
   margin-top: 8px;
 }
-
-/* GRID VIEW */
 
 .grid {
   display: grid;
@@ -189,8 +185,6 @@ body::-webkit-scrollbar {
     grid-template-columns: 1fr;
   }
 }
-
-/* LIST VIEW */
 
 .listTable {
   width: 100%;
@@ -236,8 +230,6 @@ body::-webkit-scrollbar {
   text-decoration: underline;
 }
 
-/* статус и приоритет в таблице — такие же капсулы, как на деталке */
-
 .statusBadge,
 .priorityBadge {
   padding: 4px 10px;
@@ -258,8 +250,6 @@ body::-webkit-scrollbar {
   height: 6px;
   border-radius: 999px;
 }
-
-/* статусы */
 
 .status_pending {
   background: linear-gradient(135deg, #fff7d6, #fef3c7);
@@ -291,8 +281,6 @@ body::-webkit-scrollbar {
   background: #ef4444;
 }
 
-/* приоритеты */
-
 .priorityBadge {
   background: linear-gradient(135deg, #eef2ff, #e5e7eb);
   color: #374151;
@@ -314,16 +302,12 @@ body::-webkit-scrollbar {
   background: #facc15;
 }
 
-/* ROW VIEW */
-
 .rowList {
   display: flex;
   flex-direction: column;
   gap: 8px;
   animation: fadeInSoft 0.25s ease-out;
 }
-
-/* PAGINATION */
 
 .pagination {
   margin-top: 16px;

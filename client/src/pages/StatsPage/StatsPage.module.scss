@@ -20,7 +20,6 @@
   }
 }
 
-/* анимация роста столбцов по высоте */
 @keyframes barGrowY {
   from {
     transform: scaleY(0);
@@ -30,7 +29,6 @@
   }
 }
 
-/* анимация роста горизонтальных баров по ширине */
 @keyframes barGrowX {
   from {
     transform: scaleX(0);
@@ -40,7 +38,6 @@
   }
 }
 
-/* пончик — мягкий «залёт» */
 @keyframes pieSweep {
   from {
     opacity: 0;
@@ -104,8 +101,6 @@
   color: #6b7280;
 }
 
-/* переключатель периода (MUI ToggleButtonGroup) */
-
 .periodSwitch {
   display: inline-flex !important;
   gap: 4px;
@@ -139,8 +134,6 @@
   color: #ffffff !important;
   box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35) !important;
 }
-
-/* метрики */
 
 .metricsGrid {
   display: grid;
@@ -187,8 +180,6 @@
   color: #9ca3af;
 }
 
-/* графики */
-
 .chartsGrid {
   margin-top: 16px;
   display: grid;
@@ -225,8 +216,6 @@
   font-size: 14px;
 }
 
-/* столбчатая диаграмма */
-
 .barChart {
   display: flex;
   align-items: flex-end;
@@ -243,8 +232,6 @@
   justify-content: flex-end;
   gap: 6px;
 }
-
-/* плавный рост столбцов + hover */
 
 .bar {
   width: 100%;
@@ -267,8 +254,6 @@
   transform: translateY(-3px);
   box-shadow: 0 8px 18px rgba(99, 102, 241, 0.45);
 }
-
-/* лёгкий сдвиг по времени, чтобы колонки выезжали не одновременно */
 
 .barColumn:nth-child(1) .bar {
   animation-delay: 0.02s;
@@ -296,8 +281,6 @@
   font-size: 11px;
   color: #6b7280;
 }
-
-/* пончик */
 
 .pieRow {
   display: flex;
@@ -330,8 +313,6 @@
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.16);
 }
 
-/* легенда */
-
 .legend {
   display: flex;
   flex-direction: column;
@@ -352,15 +333,15 @@
 }
 
 .legendDot1 {
-  background: #22c55e; /* зелёный */
+  background: #22c55e; 
 }
 
 .legendDot2 {
-  background: #ef4444; /* красный */
+  background: #ef4444; 
 }
 
 .legendDot3 {
-  background: #facc15; /* жёлтый */
+  background: #facc15;
 }
 
 .legendLabel {
@@ -371,8 +352,6 @@
   font-size: 12px;
   color: #6b7280;
 }
-
-/* категории */
 
 .categoriesChart {
   display: flex;
@@ -414,15 +393,11 @@
   animation: barGrowX 0.6s ease-out;
 }
 
-/* чтобы короткие бары не выглядели «рвано», анимируем все одинаково */
-
 .categoryValue {
   font-size: 12px;
   color: #374151;
   flex-shrink: 0;
 }
-
-/* адаптив */
 
 @media (max-width: 900px) {
   .metricsGrid {
