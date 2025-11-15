@@ -2,9 +2,9 @@
   min-height: 100vh;
   background: linear-gradient(
     135deg,
-    rgba(235, 242, 255, 0.55),   // почти белый голубой
-    rgba(245, 248, 255, 0.55),   // еле уловимый холодный белый
-    rgba(240, 236, 255, 0.55)    // невесомая лавандовая дымка
+    rgba(235, 242, 255, 0.55), 
+    rgba(245, 248, 255, 0.55), 
+    rgba(240, 236, 255, 0.55) 
   );
   display: flex;
   flex-direction: column;
@@ -36,6 +36,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  border-radius: 100px;
 }
 
 .title {
@@ -51,24 +52,36 @@
 
 .periodSwitch {
   display: inline-flex;
-  gap: 6px;
-  background: #e5edff;
+  gap: 4px;
+  background: rgba(79, 70, 229, 0.08);
   padding: 4px;
   border-radius: 999px;
 }
 
 .periodButton {
-  border: none;
-  padding: 6px 10px;
-  border-radius: 999px;
+  border-radius: 999px !important;
+  padding: 6px 14px !important;
   font-size: 13px;
-  background: transparent;
+  text-transform: none !important;
+  min-width: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  color: #4b5563 !important;
   cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.periodButton:hover {
+  background: rgba(79, 70, 229, 0.12) !important;
 }
 
 .periodButtonActive {
-  background: #4f46e5;
-  color: #ffffff;
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);
 }
 
 .metricsGrid {
@@ -78,14 +91,26 @@
 }
 
 .metricCard {
-  background: #ffffff;
-  border-radius: 12px;
+  background: #ffffff !important;
+  border-radius: 12px !important;
   border: 1px solid #e5e7eb;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-  padding: 14px 16px;
+  padding: 14px 16px !important;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  transition:
+    border-color 0.18s ease-out,
+    box-shadow 0.18s ease-out,
+    transform 0.18s ease-out,
+    background 0.18s ease-out;
+
+  &:hover {
+    border-color: #a855f7;
+    box-shadow: 0 14px 30px rgba(88, 28, 135, 0.22);
+    transform: translateY(-2px);
+    background: #f9f5ff;
+  }
 }
 
 .metricLabel {
@@ -111,14 +136,26 @@
 }
 
 .chartCard {
-  background: #ffffff;
-  border-radius: 12px;
+  background: #ffffff !important;
+  border-radius: 12px !important;
   border: 1px solid #e5e7eb;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-  padding: 14px 16px;
+  padding: 14px 16px !important;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  transition:
+    border-color 0.18s ease-out,
+    box-shadow 0.18s ease-out,
+    transform 0.18s ease-out,
+    background 0.18s ease-out;
+
+  &:hover {
+    border-color: #a855f7;
+    box-shadow: 0 16px 34px rgba(88, 28, 135, 0.24);
+    transform: translateY(-2px);
+    background: #f9f5ff;
+  }
 }
 
 .chartTitle {
@@ -133,19 +170,34 @@
   height: 140px;
 }
 
-.bar {
+.barColumn {
   flex: 1;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 4px;
   align-items: center;
   justify-content: flex-end;
+  gap: 6px;
 }
 
-.barColumn {
+.bar {
   width: 100%;
   border-radius: 999px 999px 0 0;
-  background: #4f46e5;
+  background: linear-gradient(
+    180deg,
+    #8b5cf6 0%,   // верх — фиолетовый
+    #6366f1 45%,
+    #3b82f6 100%  // низ — синий
+  );
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);
+  transition:
+    transform 0.18s ease-out,
+    box-shadow 0.18s ease-out;
+}
+
+.barColumn:hover .bar {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.45);
 }
 
 .barLabel {
@@ -160,13 +212,27 @@
 }
 
 .pieStub {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   border-radius: 999px;
-  border: 10px solid #e5edff;
-  border-top-color: #22c55e;
-  border-right-color: #f97316;
-  border-bottom-color: #ef4444;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 0.18s ease-out,
+    box-shadow 0.18s ease-out;
+}
+
+.pieInner {
+  position: absolute;
+  inset: 24px; 
+  border-radius: inherit;
+  background: #ffffff;
+}
+
+.chartCard:hover .pieStub {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.16);
 }
 
 .legend {
@@ -186,6 +252,18 @@
   width: 10px;
   height: 10px;
   border-radius: 999px;
+}
+
+.legendDot1 {
+  background: #22c55e; 
+}
+
+.legendDot2 {
+  background: #ef4444; 
+}
+
+.legendDot3 {
+  background: #facc15; 
 }
 
 .legendLabel {
@@ -227,7 +305,11 @@
 .categoryBar {
   height: 100%;
   border-radius: inherit;
-  background: #4f46e5;
+  background: linear-gradient(
+    90deg,
+    #4f46e5,
+    #a855f7
+  );
 }
 
 .categoryValue {

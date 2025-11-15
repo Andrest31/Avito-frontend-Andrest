@@ -2,9 +2,9 @@
   min-height: 100vh;
   background: linear-gradient(
     135deg,
-    rgba(235, 242, 255, 0.55),   // почти белый голубой
-    rgba(245, 248, 255, 0.55),   // еле уловимый холодный белый
-    rgba(240, 236, 255, 0.55)    // невесомая лавандовая дымка
+    rgba(235, 242, 255, 0.55),   
+    rgba(245, 248, 255, 0.55),   
+    rgba(240, 236, 255, 0.55)    
   );
   display: flex;
   flex-direction: column;
@@ -246,7 +246,13 @@
   width: 40px;
   height: 40px;
   border-radius: 999px;
-  background: #e5e7eb;
+  background: linear-gradient(135deg, #0d69ff, #20c997);
+  font-weight: 600;
+  color: #fff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sellerName {

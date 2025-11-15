@@ -7,6 +7,8 @@ import {
   type ModerationHistoryItem,
 } from "../../shared/listing/mockListings";
 
+import { Card, ToggleButtonGroup, ToggleButton } from "@mui/material";
+
 type Period = "today" | "week" | "month";
 
 type Summary = {
@@ -74,7 +76,7 @@ function computeSummary(listings: ListingWithMeta[], period: Period): Summary {
 
     categoryCounts.set(
       listing.category,
-      (categoryCounts.get(listing.category) || 0) + 1,
+      (categoryCounts.get(listing.category) || 0) + 1
     );
 
     const start = new Date(first.dateISO).getTime();
@@ -91,7 +93,7 @@ function computeSummary(listings: ListingWithMeta[], period: Period): Summary {
     perAdMinutes.length === 0
       ? 0
       : Math.round(
-          perAdMinutes.reduce((sum, v) => sum + v, 0) / perAdMinutes.length,
+          perAdMinutes.reduce((sum, v) => sum + v, 0) / perAdMinutes.length
         );
 
   const hours = Math.floor(avgMinutes / 60);
@@ -161,6 +163,13 @@ export const StatsPage: React.FC = () => {
     categories: current.categories,
   };
 
+  const handlePeriodChange = (
+    _: React.MouseEvent<HTMLElement>,
+    value: Period | null
+  ) => {
+    if (value) setPeriod(value);
+  };
+
   return (
     <div className={styles.page}>
       <Header />
@@ -174,67 +183,61 @@ export const StatsPage: React.FC = () => {
             </p>
           </div>
           <div className={styles.toolbarRight}>
-            <div className={styles.periodSwitch}>
-              {(
-                Object.keys(PERIOD_LABELS) as Period[]
-              ).map((key) => (
-                <button
+            <ToggleButtonGroup
+              className={styles.periodSwitch}
+              value={period}
+              exclusive
+              onChange={handlePeriodChange}
+            >
+              {(Object.keys(PERIOD_LABELS) as Period[]).map((key) => (
+                <ToggleButton
                   key={key}
-                  type="button"
+                  value={key}
                   className={`${styles.periodButton} ${
                     period === key ? styles.periodButtonActive : ""
                   }`}
-                  onClick={() => setPeriod(key)}
                 >
                   {PERIOD_LABELS[key]}
-                </button>
+                </ToggleButton>
               ))}
-            </div>
+            </ToggleButtonGroup>
           </div>
         </header>
 
         <section className={styles.metricsGrid}>
-          <div className={styles.metricCard}>
+          <Card className={styles.metricCard} elevation={0}>
             <span className={styles.metricLabel}>Проверено сегодня</span>
             <span className={styles.metricValue}>{stats.totalToday}</span>
             <span className={styles.metricHint}>
               За неделю: {stats.totalWeek}, за месяц: {stats.totalMonth}
             </span>
-          </div>
+          </Card>
 
-          <div className={styles.metricCard}>
+          <Card className={styles.metricCard} elevation={0}>
             <span className={styles.metricLabel}>Одобрено</span>
-            <span className={styles.metricValue}>
-              {stats.approvedPercent}%
-            </span>
+            <span className={styles.metricValue}>{stats.approvedPercent}%</span>
             <span className={styles.metricHint}>
               Доля одобренных от всех решений
             </span>
-          </div>
+          </Card>
 
-          <div className={styles.metricCard}>
+          <Card className={styles.metricCard} elevation={0}>
             <span className={styles.metricLabel}>Отклонено</span>
-            <span className={styles.metricValue}>
-              {stats.rejectedPercent}%
-            </span>
-            <span className={styles.metricHint}>
-              Включая нарушения правил
-            </span>
-          </div>
+            <span className={styles.metricValue}>{stats.rejectedPercent}%</span>
+            <span className={styles.metricHint}>Включая нарушения правил</span>
+          </Card>
 
-          <div className={styles.metricCard}>
-            <span className={styles.metricLabel}>
-              Среднее время проверки
-            </span>
+          <Card className={styles.metricCard} elevation={0}>
+            <span className={styles.metricLabel}>Среднее время проверки</span>
             <span className={styles.metricValue}>{stats.avgReviewTime}</span>
             <span className={styles.metricHint}>
               От открытия карточки до принятия решения
             </span>
-          </div>
+          </Card>
         </section>
 
         <section className={styles.chartsGrid}>
-          <div className={styles.chartCard}>
+          <Card className={styles.chartCard} elevation={0}>
             <h2 className={styles.chartTitle}>
               Активность по дням (последняя неделя)
             </h2>
@@ -249,14 +252,26 @@ export const StatsPage: React.FC = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
 
-          <div className={styles.chartCard}>
+          <Card className={styles.chartCard} elevation={0}>
             <h2 className={styles.chartTitle}>
               Распределение решений модерации
             </h2>
             <div className={styles.pieRow}>
-              <div className={styles.pieStub} />
+              <div
+                className={styles.pieStub}
+                style={{
+                  background: `conic-gradient(
+          #22c55e 0deg ${stats.decisions[0].value * 3.6}deg,
+          #ef4444 ${stats.decisions[0].value * 3.6}deg ${(stats.decisions[0].value + stats.decisions[1].value) * 3.6}deg,
+          #facc15 ${(stats.decisions[0].value + stats.decisions[1].value) * 3.6}deg 360deg
+        )`,
+                }}
+              >
+                <div className={styles.pieInner} />
+              </div>
+
               <ul className={styles.legend}>
                 {stats.decisions.map((item, index) => (
                   <li key={item.label} className={styles.legendItem}>
@@ -266,16 +281,14 @@ export const StatsPage: React.FC = () => {
                       }`}
                     />
                     <span className={styles.legendLabel}>{item.label}</span>
-                    <span className={styles.legendValue}>
-                      {item.value}%
-                    </span>
+                    <span className={styles.legendValue}>{item.value}%</span>
                   </li>
                 ))}
               </ul>
             </div>
-          </div>
+          </Card>
 
-          <div className={styles.chartCard}>
+          <Card className={styles.chartCard} elevation={0}>
             <h2 className={styles.chartTitle}>
               Проверенные объявления по категориям
             </h2>
@@ -289,13 +302,11 @@ export const StatsPage: React.FC = () => {
                       style={{ width: `${item.value}%` }}
                     />
                   </div>
-                  <span className={styles.categoryValue}>
-                    {item.value}%
-                  </span>
+                  <span className={styles.categoryValue}>{item.value}%</span>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </section>
       </main>
     </div>

@@ -6,7 +6,6 @@
   align-items: center;
   padding: 14px 32px;
 
-  // Зимний градиент
   background: linear-gradient(
     135deg,
     rgba(200, 230, 255, 0.75),   // мягкий пастельный голубой
@@ -15,10 +14,7 @@
   );
 
   backdrop-filter: blur(16px);
-
-  // Мягкая тень снизу
   box-shadow: 0 4px 18px rgba(30, 41, 59, 0.18);
-
   border-bottom: 1px solid rgba(226, 232, 240, 0.4);
 }
 
@@ -179,7 +175,7 @@
   width: 28px;
   height: 28px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #0d69ff, #20c997);
+  background: linear-gradient(180deg, #8b5cf6 0%, #6366f1 45%, #3b82f6 100%);;
   color: #fff;
   display: flex;
   align-items: center;
