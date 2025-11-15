@@ -1,7 +1,8 @@
 import React from "react";
 import styles from "./Header.module.scss";
+import { Link } from "react-router-dom";
 
-export const Header: React.FC = () => {
+export const Header: React.FC = () => {  
   return (
     <header className={styles.header}>
       <div className={styles.headerLeft}>
@@ -28,12 +29,12 @@ export const Header: React.FC = () => {
       </div>
 
       <div className={styles.headerRight}>
-        <button
-          type="button"
-          className={`${styles.headerButton} ${styles.headerButtonSecondary}`}
+        <Link
+          to="/stats"
+          className={`${styles.statsButton}`}
         >
-          Мои фильтры
-        </button>
+          Статистика
+        </Link>
         <button
           type="button"
           className={`${styles.headerButton} ${styles.headerButtonPrimary}`}

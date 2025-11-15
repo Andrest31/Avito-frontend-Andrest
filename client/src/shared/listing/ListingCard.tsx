@@ -45,16 +45,23 @@ export const ListingCard: React.FC<Props> = ({ item }) => {
           </span>
         </div>
       </div>
+
       <div className={styles.body}>
         <h2 className={styles.title}>{item.title}</h2>
-        <div className={styles.priceRow}>
+
+        <div className={styles.metaTop}>
           <span className={styles.price}>{item.price}</span>
         </div>
-        <div className={styles.meta}>
+
+        <div className={styles.metaBottom}>
           <span>{item.category}</span>
           <span className={styles.dot}>•</span>
           <span>{item.createdAt}</span>
         </div>
+      </div>
+
+      <div className={styles.footer}>
+        <div className={styles.openPseudoButton}>Открыть</div>
       </div>
     </article>
   );
