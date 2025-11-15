@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Header } from "../../shared/layout/Header";
 import styles from "./ListingDetailsPage.module.scss";
@@ -42,7 +42,6 @@ export const ListingDetailsPage: React.FC = () => {
   );
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  // модалка
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalDecision, setModalDecision] =
     useState<ModerationDecision | null>(null);
@@ -50,6 +49,10 @@ export const ListingDetailsPage: React.FC = () => {
     REASON_TEMPLATES[0]
   );
   const [modalComment, setModalComment] = useState("");
+
+  // тост
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimeoutRef = useRef<number | null>(null);
 
   const listingId = Number(id);
   const index = useMemo(
@@ -59,12 +62,29 @@ export const ListingDetailsPage: React.FC = () => {
 
   const listing = index >= 0 ? listings[index] : null;
 
-  const prevId =
-    index > 0 ? listings[index - 1].id : undefined;
+  const prevId = index > 0 ? listings[index - 1].id : undefined;
   const nextId =
     index >= 0 && index < listings.length - 1
       ? listings[index + 1].id
       : undefined;
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        window.clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const showToast = (message: string) => {
+    if (toastTimeoutRef.current) {
+      window.clearTimeout(toastTimeoutRef.current);
+    }
+    setToastMessage(message);
+    toastTimeoutRef.current = window.setTimeout(() => {
+      setToastMessage(null);
+    }, 3000);
+  };
 
   if (!listing || Number.isNaN(listingId)) {
     return (
@@ -131,6 +151,7 @@ export const ListingDetailsPage: React.FC = () => {
   const openReasonModal = (decision: ModerationDecision) => {
     if (decision === "approved") {
       applyDecision("approved");
+      showToast("Объявление одобрено");
       return;
     }
     setModalDecision(decision);
@@ -150,6 +171,10 @@ export const ListingDetailsPage: React.FC = () => {
         : selectedReason;
 
     applyDecision(modalDecision, comment);
+
+    if (modalDecision === "approved") {
+      showToast("Объявление одобрено");
+    }
 
     setIsModalOpen(false);
     setModalDecision(null);
@@ -185,6 +210,13 @@ export const ListingDetailsPage: React.FC = () => {
   return (
     <div className={styles.page}>
       <Header />
+
+      {toastMessage && (
+        <div className={styles.toast}>
+          <span className={styles.toastIcon}>✓</span>
+          <span className={styles.toastText}>{toastMessage}</span>
+        </div>
+      )}
 
       <main className={styles.main}>
         <button
