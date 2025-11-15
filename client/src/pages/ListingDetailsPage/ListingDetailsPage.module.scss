@@ -24,6 +24,12 @@
   background: #ffffff;
   cursor: pointer;
 }
+  .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; // важно, чтобы прижимало к верху
+  margin-bottom: 20px;
+}
 
 .headerRow {
   display: flex;
@@ -42,7 +48,18 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  margin-top: 4px; 
+}
+
+.priceTopLabel {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.priceTopValue {
+  font-size: 28px;
+  font-weight: 700;
 }
 
 .title {

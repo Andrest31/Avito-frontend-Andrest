@@ -12,11 +12,14 @@ import {
   type Filters,
 } from "../../shared/layout/SidebarFilters";
 import {
-  mockListings,
+  getInitialListings,
   type ListingWithMeta,
 } from "../../shared/listing/mockListings";
+import { useSearch } from "../../shared/search/SearchContext";
 import styles from "./ListingsPage.module.scss";
+
 const ITEMS_PER_PAGE = 10;
+
 type ViewMode = "grid" | "list" | "row";
 type SortKey =
   | "date_desc"
@@ -24,15 +27,18 @@ type SortKey =
   | "price_desc"
   | "price_asc"
   | "priority";
+
 const statusLabel: Record<ModerationStatus, string> = {
   pending: "На модерации",
   approved: "Одобрено",
   rejected: "Отклонено",
 };
+
 const priorityLabel: Record<Priority, string> = {
   normal: "Обычное",
   urgent: "Срочное",
 };
+
 const defaultFilters: Filters = {
   statuses: ["pending", "approved", "rejected"],
   categories: [],
@@ -41,51 +47,73 @@ const defaultFilters: Filters = {
   priceTo: undefined,
   onlyWithPrice: false,
 };
+
 export const ListingsPage: React.FC = () => {
+  const [listings] = useState<ListingWithMeta[]>(() => getInitialListings());
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortKey, setSortKey] = useState<SortKey>("date_desc");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const { query } = useSearch();
+
   const handleFiltersChange = (next: Filters) => {
     setFilters(next);
     setCurrentPage(1);
   };
-  const handleSortChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ): void => {
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
     setSortKey(e.target.value as SortKey);
     setCurrentPage(1);
   };
+
   const handleViewChange = (mode: ViewMode) => {
     setViewMode(mode);
   };
+
   const filteredAndSorted: ListingWithMeta[] = useMemo(() => {
-    let result = [...mockListings];
+    let result = [...listings];
+
     if (filters.statuses.length > 0) {
-      result = result.filter((item) =>
-        filters.statuses.includes(item.status)
-      );
+      result = result.filter((item) => filters.statuses.includes(item.status));
     }
+
     if (filters.categories.length > 0) {
       result = result.filter((item) =>
-        filters.categories.includes(item.category)
+        filters.categories.includes(item.category),
       );
     }
+
     if (filters.priorities.length > 0) {
       result = result.filter((item) =>
-        filters.priorities.includes(item.priority)
+        filters.priorities.includes(item.priority),
       );
     }
+
     if (filters.onlyWithPrice) {
       result = result.filter((item) => item.priceValue > 0);
     }
+
     if (filters.priceFrom !== undefined) {
       result = result.filter((item) => item.priceValue >= filters.priceFrom!);
     }
+
     if (filters.priceTo !== undefined) {
       result = result.filter((item) => item.priceValue <= filters.priceTo!);
     }
-    // сортировка
+
+    // поиск из хедера
+    if (query.trim()) {
+      const s = query.trim().toLowerCase();
+      result = result.filter(
+        (item) =>
+          item.title.toLowerCase().includes(s) ||
+          item.category.toLowerCase().includes(s) ||
+          String(item.id).includes(s),
+      );
+    }
+
+    // сортировка (как у тебя было)
     result.sort((a, b) => {
       switch (sortKey) {
         case "price_asc":
@@ -105,22 +133,27 @@ export const ListingsPage: React.FC = () => {
           return 0;
       }
     });
+
     return result;
-  }, [filters, sortKey]);
+  }, [filters, sortKey, query, listings]);
+
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredAndSorted.length / ITEMS_PER_PAGE)
+    Math.ceil(filteredAndSorted.length / ITEMS_PER_PAGE),
   );
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const pageItems = filteredAndSorted.slice(
     startIndex,
-    startIndex + ITEMS_PER_PAGE
+    startIndex + ITEMS_PER_PAGE,
   );
+
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
+
   return (
     <div className={styles.page}>
       <Header />
@@ -178,7 +211,9 @@ export const ListingsPage: React.FC = () => {
             </div>
           </div>
         </header>
+
         <SidebarFilters value={filters} onChange={handleFiltersChange} />
+
         <section className={styles.content}>
           {viewMode === "grid" ? (
             <div className={styles.grid}>
@@ -246,7 +281,7 @@ export const ListingsPage: React.FC = () => {
             </div>
           )}
         </section>
-        {/* Пагинация */}
+
         <div className={styles.pagination}>
           <button
             type="button"

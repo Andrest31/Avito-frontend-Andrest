@@ -1,38 +1,166 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Header } from "../../shared/layout/Header";
 import styles from "./StatsPage.module.scss";
+import {
+  getInitialListings,
+  type ListingWithMeta,
+  type ModerationHistoryItem,
+} from "../../shared/listing/mockListings";
 
-const stats = {
-  totalToday: 34,
-  totalWeek: 210,
-  totalMonth: 820,
-  approvedPercent: 68,
-  rejectedPercent: 22,
-  reworkPercent: 10,
-  avgReviewTime: "01:45",
-  dailyActivity: [
-    { day: "Пн", value: 18 },
-    { day: "Вт", value: 24 },
-    { day: "Ср", value: 30 },
-    { day: "Чт", value: 27 },
-    { day: "Пт", value: 22 },
-    { day: "Сб", value: 12 },
-    { day: "Вс", value: 7 },
-  ],
-  decisions: [
-    { label: "Одобрено", value: 68 },
-    { label: "Отклонено", value: 22 },
-    { label: "На доработку", value: 10 },
-  ],
-  categories: [
-    { label: "Электроника", value: 40 },
-    { label: "Мебель", value: 18 },
-    { label: "Одежда", value: 12 },
-    { label: "Услуги", value: 30 },
-  ],
+type Period = "today" | "week" | "month";
+
+type Summary = {
+  total: number;
+  approvedPercent: number;
+  rejectedPercent: number;
+  reworkPercent: number;
+  avgReviewTime: string;
+  dailyActivity: { day: string; value: number }[];
+  decisions: { label: string; value: number }[];
+  categories: { label: string; value: number }[];
 };
 
+type ModeratedItem = {
+  listing: ListingWithMeta;
+  first: ModerationHistoryItem;
+  last: ModerationHistoryItem;
+};
+
+const PERIOD_LABELS: Record<Period, string> = {
+  today: "Сегодня",
+  week: "Последние 7 дней",
+  month: "Последние 30 дней",
+};
+
+const DAY_LABELS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+function isInPeriod(dateISO: string, period: Period): boolean {
+  const now = new Date();
+  const date = new Date(dateISO);
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+  if (period === "today") return diffDays <= 1;
+  if (period === "week") return diffDays <= 7;
+  return diffDays <= 30;
+}
+
+function computeSummary(listings: ListingWithMeta[], period: Period): Summary {
+  const moderated: ModeratedItem[] = listings
+    .map<ModeratedItem | null>((listing) => {
+      const history = listing.moderationHistory;
+      if (!history.length) return null;
+      const first = history[0];
+      const last = history[history.length - 1];
+      return { listing, first, last };
+    })
+    .filter((x): x is ModeratedItem => x !== null)
+    .filter(({ last }) => isInPeriod(last.dateISO, period));
+
+  const total = moderated.length;
+
+  let approved = 0;
+  let rejected = 0;
+  let rework = 0;
+
+  const perAdMinutes: number[] = [];
+  const categoryCounts = new Map<string, number>();
+  const daysCounts = new Array(7).fill(0) as number[];
+
+  moderated.forEach(({ listing, first, last }) => {
+    if (listing.status === "approved") approved++;
+    if (listing.status === "rejected") rejected++;
+    if (listing.status === "pending") rework++;
+
+    categoryCounts.set(
+      listing.category,
+      (categoryCounts.get(listing.category) || 0) + 1,
+    );
+
+    const start = new Date(first.dateISO).getTime();
+    const end = new Date(last.dateISO).getTime();
+    const minutes = Math.max(1, Math.round((end - start) / (1000 * 60)));
+    perAdMinutes.push(minutes);
+
+    const dow = new Date(last.dateISO).getDay(); // 0 — Вс
+    const idx = dow === 0 ? 6 : dow - 1;
+    daysCounts[idx] += 1;
+  });
+
+  const avgMinutes =
+    perAdMinutes.length === 0
+      ? 0
+      : Math.round(
+          perAdMinutes.reduce((sum, v) => sum + v, 0) / perAdMinutes.length,
+        );
+
+  const hours = Math.floor(avgMinutes / 60);
+  const mins = avgMinutes % 60;
+  const avgReviewTime =
+    avgMinutes === 0
+      ? "—"
+      : `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+
+  const approvedPercent = total ? Math.round((approved / total) * 100) : 0;
+  const rejectedPercent = total ? Math.round((rejected / total) * 100) : 0;
+  const reworkPercent = total ? Math.round((rework / total) * 100) : 0;
+
+  const dailyActivity = DAY_LABELS.map((day, idx) => ({
+    day,
+    value: daysCounts[idx],
+  }));
+
+  const decisions = [
+    { label: "Одобрено", value: approvedPercent },
+    { label: "Отклонено", value: rejectedPercent },
+    { label: "На доработку", value: reworkPercent },
+  ];
+
+  const categories: { label: string; value: number }[] = [];
+  categoryCounts.forEach((count, category) => {
+    const percent = total ? Math.round((count / total) * 100) : 0;
+    categories.push({ label: category, value: percent });
+  });
+
+  return {
+    total,
+    approvedPercent,
+    rejectedPercent,
+    reworkPercent,
+    avgReviewTime,
+    dailyActivity,
+    decisions,
+    categories,
+  };
+}
+
 export const StatsPage: React.FC = () => {
+  const [listings] = useState<ListingWithMeta[]>(() => getInitialListings());
+  const [period, setPeriod] = useState<Period>("today");
+
+  const summariesByPeriod = useMemo(() => {
+    return {
+      today: computeSummary(listings, "today"),
+      week: computeSummary(listings, "week"),
+      month: computeSummary(listings, "month"),
+    };
+  }, [listings]);
+
+  const current = summariesByPeriod[period];
+
+  const stats = {
+    totalToday: summariesByPeriod.today.total,
+    totalWeek: summariesByPeriod.week.total,
+    totalMonth: summariesByPeriod.month.total,
+    approvedPercent: current.approvedPercent,
+    rejectedPercent: current.rejectedPercent,
+    reworkPercent: current.reworkPercent,
+    avgReviewTime: current.avgReviewTime,
+    dailyActivity: current.dailyActivity,
+    decisions: current.decisions,
+    categories: current.categories,
+  };
+
   return (
     <div className={styles.page}>
       <Header />
@@ -47,19 +175,20 @@ export const StatsPage: React.FC = () => {
           </div>
           <div className={styles.toolbarRight}>
             <div className={styles.periodSwitch}>
-              {/* Просто верстка, без логики фильтрации */}
-              <button
-                type="button"
-                className={`${styles.periodButton} ${styles.periodButtonActive}`}
-              >
-                Сегодня
-              </button>
-              <button type="button" className={styles.periodButton}>
-                Последние 7 дней
-              </button>
-              <button type="button" className={styles.periodButton}>
-                Последние 30 дней
-              </button>
+              {(
+                Object.keys(PERIOD_LABELS) as Period[]
+              ).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={`${styles.periodButton} ${
+                    period === key ? styles.periodButtonActive : ""
+                  }`}
+                  onClick={() => setPeriod(key)}
+                >
+                  {PERIOD_LABELS[key]}
+                </button>
+              ))}
             </div>
           </div>
         </header>
@@ -88,7 +217,9 @@ export const StatsPage: React.FC = () => {
             <span className={styles.metricValue}>
               {stats.rejectedPercent}%
             </span>
-            <span className={styles.metricHint}>Включая нарушения правил</span>
+            <span className={styles.metricHint}>
+              Включая нарушения правил
+            </span>
           </div>
 
           <div className={styles.metricCard}>
@@ -130,7 +261,9 @@ export const StatsPage: React.FC = () => {
                 {stats.decisions.map((item, index) => (
                   <li key={item.label} className={styles.legendItem}>
                     <span
-                      className={`${styles.legendDot} ${styles[`legendDot${index + 1}`]}`}
+                      className={`${styles.legendDot} ${
+                        styles[`legendDot${index + 1}`]
+                      }`}
                     />
                     <span className={styles.legendLabel}>{item.label}</span>
                     <span className={styles.legendValue}>
@@ -156,7 +289,9 @@ export const StatsPage: React.FC = () => {
                       style={{ width: `${item.value}%` }}
                     />
                   </div>
-                  <span className={styles.categoryValue}>{item.value}%</span>
+                  <span className={styles.categoryValue}>
+                    {item.value}%
+                  </span>
                 </div>
               ))}
             </div>

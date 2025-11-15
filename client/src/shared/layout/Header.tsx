@@ -1,18 +1,17 @@
 import React from "react";
 import styles from "./Header.module.scss";
 import { Link, useLocation } from "react-router-dom";
+import { useSearch } from "../search/SearchContext";
 
 export const Header: React.FC = () => {
   const location = useLocation();
-
   const isStatsPage = location.pathname === "/stats";
+
+  const { query, setQuery } = useSearch();
 
   return (
     <header className={styles.header}>
-      <Link
-        to="/list"
-        className={`${styles.headerLeft}`}
-      >
+      <Link to="/list" className={styles.headerLeft}>
         <div className={styles.logoBadge}>
           <span className={`${styles.logoDot} ${styles.logoDotBlue}`} />
           <span className={`${styles.logoDot} ${styles.logoDotGreen}`} />
@@ -31,6 +30,8 @@ export const Header: React.FC = () => {
             type="text"
             placeholder="Поиск по объявлениям"
             className={styles.searchField}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
           />
         </div>
       </div>
@@ -38,10 +39,13 @@ export const Header: React.FC = () => {
       <div className={styles.headerRight}>
         <Link
           to="/stats"
-          className={`${styles.statsButton} ${isStatsPage ? styles.statsButtonActive : ""}`}
+          className={`${styles.statsButton} ${
+            isStatsPage ? styles.statsButtonActive : ""
+          }`}
         >
           Статистика
         </Link>
+
         <div className={styles.headerProfile}>
           <span className={styles.profileAvatar}>У</span>
           <div className={styles.profileInfo}>
