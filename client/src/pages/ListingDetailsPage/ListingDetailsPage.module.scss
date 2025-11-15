@@ -1,12 +1,12 @@
 .page {
   min-height: 100vh;
-  background: #f3f4f6;
+  background: rgba(245, 247, 251, 0.9);
   display: flex;
   flex-direction: column;
 }
 
 .main {
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 24px auto 40px;
   padding: 0 24px;
   display: flex;
@@ -16,10 +16,11 @@
 
 .backButton {
   align-self: flex-start;
-  font-size: 13px;
-  padding: 4px 10px;
+  margin-bottom: 8px;
   border-radius: 999px;
   border: 1px solid #e5e7eb;
+  padding: 6px 12px;
+  font-size: 13px;
   background: #ffffff;
   cursor: pointer;
 }
@@ -34,170 +35,33 @@
 .headerLeft {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+}
+
+.headerRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
 }
 
 .title {
   margin: 0;
-  font-size: 22px;
+  font-size: 24px;
 }
 
 .badgesRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-}
-
-.metaRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  font-size: 13px;
-  color: #6b7280;
-}
-
-.dot {
-  color: #d1d5db;
-}
-
-.headerRight {
-  text-align: right;
-  min-width: 180px;
-}
-
-.priceTopLabel {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.priceTopValue {
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.layout {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
-  gap: 16px;
-  margin-top: 8px;
-}
-
-/* Общая карточка */
-.card {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  padding: 16px 18px;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
-}
-
-.left {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.right {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.section {
-  margin-top: 14px;
-}
-
-.sectionTitle {
-  margin: 0 0 6px;
-  font-size: 15px;
-}
-
-/* Галерея */
-.gallery {
-  display: flex;
-  flex-direction: column;
   gap: 8px;
 }
 
-.mainImage {
-  width: 100%;
-  border-radius: 10px;
-  object-fit: cover;
-  max-height: 380px;
-}
-
-.thumbnails {
-  display: flex;
-  gap: 8px;
-}
-
-.thumbnailButton {
-  border: none;
-  padding: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.thumbnail {
-  width: 100px;
-  height: 70px;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-/* Описание */
-.description {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-/* Характеристики */
-.characteristicsTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 4px;
-}
-
-.characteristicsKey {
-  width: 35%;
-  font-size: 13px;
-  padding: 6px 10px;
-  background: #f9fafb;
-  color: #6b7280;
-}
-
-.characteristicsValue {
-  font-size: 13px;
-  padding: 6px 10px;
-}
-
-.characteristicsTable tr + tr .characteristicsKey,
-.characteristicsTable tr + tr .characteristicsValue {
-  border-top: 1px solid #e5e7eb;
-}
-
-/* Статус / приоритет */
 .status {
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 600;
-}
-
-.status_pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.status_approved {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.status_rejected {
-  background: #fee2e2;
-  color: #b91c1c;
+  font-weight: 500;
+  text-transform: uppercase;
 }
 
 .priorityBadge {
@@ -213,86 +77,165 @@
   color: #fef2f2;
 }
 
-/* История модерации */
-.historyCard {
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.dot {
+  color: #d1d5db;
+}
+
+.priceTopLabel {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.priceTopValue {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.left {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Галерея */
+
+.gallery {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  padding: 12px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mainImage {
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.thumbnails {
+  display: flex;
+  gap: 8px;
   margin-top: 4px;
 }
 
-.historyList {
-  list-style: none;
-  margin: 8px 0 0;
+.thumbnailButton {
+  border: none;
   padding: 0;
-  position: relative;
+  background: transparent;
+  cursor: pointer;
 }
 
-.historyItem {
-  position: relative;
-  padding-left: 20px;
-  padding-bottom: 10px;
+.thumbnail {
+  width: 64px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
 }
 
-.historyBullet {
-  position: absolute;
-  left: 4px;
-  top: 6px;
-  width: 8px;
-  height: 8px;
+/* Карточки и секции */
+
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  padding: 16px 18px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Характеристики и описание */
+
+.characteristicsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.characteristicsKey {
+  width: 40%;
+  padding: 4px 0;
+  color: #6b7280;
+}
+
+.characteristicsValue {
+  padding: 4px 0;
+  font-weight: 500;
+}
+
+.description {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111827;
+}
+
+/* Продавец */
+
+.sellerHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sellerAvatar {
+  width: 40px;
+  height: 40px;
   border-radius: 999px;
-  background: #4f46e5;
-}
-
-.historyLine {
-  position: absolute;
-  left: 7px;
-  top: 14px;
-  width: 2px;
-  height: calc(100% - 8px);
   background: #e5e7eb;
 }
 
-.historyContent {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.historyTopRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-}
-
-.historyModerator {
+.sellerName {
   font-weight: 600;
 }
 
-.historyDecision {
-  padding: 2px 7px;
-  border-radius: 999px;
-  font-size: 11px;
-  background: #eef2ff;
-  color: #3730a3;
+.sellerStatus {
+  font-size: 12px;
+  color: #6b7280;
 }
 
-.historyDate {
-  margin-left: auto;
-  color: #9ca3af;
-}
+/* Боковая панель модератора */
 
-.historyComment {
-  margin: 2px 0 0;
-  font-size: 13px;
-  color: #4b5563;
-}
-
-/* Правая колонка: модерация */
 .sideBlockHeader {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-bottom: 10px;
+  gap: 2px;
+  margin-bottom: 8px;
 }
 
 .sideBlockTitle {
@@ -301,52 +244,52 @@
 }
 
 .sideBlockHint {
-  font-size: 11px;
-  color: #9ca3af;
+  font-size: 12px;
+  color: #6b7280;
 }
 
 .moderationButtons {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .actionButton {
   width: 100%;
   border-radius: 999px;
   border: none;
-  padding: 8px 12px;
-  font-size: 14px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
 }
 
 .actionApprove {
   background: #16a34a;
-  color: #ffffff;
+  color: #ecfdf5;
 }
 
 .actionReject {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: #dc2626;
+  color: #fef2f2;
 }
 
 .actionReturn {
-  background: #fef9c3;
-  color: #92400e;
+  background: #facc15;
+  color: #451a03;
 }
 
-/* Причина */
 .reasonBlock {
   margin-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .reasonLabel {
-  font-size: 12px;
-  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .reasonTemplates {
@@ -356,55 +299,96 @@
 }
 
 .reasonChip {
-  padding: 4px 8px;
   border-radius: 999px;
   border: 1px solid #e5e7eb;
+  padding: 4px 8px;
+  font-size: 12px;
   background: #f9fafb;
-  font-size: 11px;
   cursor: pointer;
 }
 
 .reasonInput {
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
+  min-height: 60px;
   padding: 8px 10px;
-  font-family: inherit;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
   font-size: 13px;
   resize: vertical;
 }
 
-/* Продавец */
-.sellerHeader {
+/* История модерации */
+
+.historyCard {
+  margin-top: 8px;
+}
+
+.historyList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.historyItem {
   display: flex;
+  align-items: flex-start;
   gap: 10px;
-  align-items: center;
+  padding: 8px 0;
 }
 
-.sellerAvatar {
-  width: 32px;
-  height: 32px;
+.historyBullet {
+  width: 10px;
+  height: 10px;
   border-radius: 999px;
-  background: #e5e7eb;
+  background: #4f46e5;
+  margin-top: 6px;
+}
+
+.historyContent {
+  flex: 1;
+}
+
+.historyTopRow {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.historyModerator {
   font-weight: 600;
 }
 
-.sellerName {
-  font-size: 14px;
-  font-weight: 600;
+.historyDecision {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: #e5edff;
+  color: #1d4ed8;
 }
 
-.sellerStatus {
+.historyDate {
   font-size: 12px;
   color: #6b7280;
 }
 
+.historyComment {
+  margin: 0;
+  font-size: 13px;
+}
+
+.historyLine {
+  height: 1px;
+  background: #e5e7eb;
+  margin-top: 8px;
+}
+
 /* Навигация по объявлениям */
+
 .navRow {
   display: flex;
   gap: 8px;
+  margin-top: 16px;
 }
 
 .navButton {
@@ -418,14 +402,11 @@
 }
 
 /* Адаптив */
-@media (max-width: 960px) {
+
+@media (max-width: 768px) {
   .main {
     margin: 16px auto 32px;
     padding: 0 16px;
-  }
-
-  .layout {
-    grid-template-columns: 1fr;
   }
 
   .headerRow {
@@ -434,6 +415,10 @@
   }
 
   .headerRight {
-    text-align: left;
+    align-items: flex-start;
+  }
+
+  .layout {
+    flex-direction: column;
   }
 }

@@ -1,23 +1,20 @@
 .page {
   min-height: 100vh;
-  background: radial-gradient(
-    circle at top left,
-    #f0f5ff 0,
-    #f5f7fb 40%,
-    #f9fafb 100%
-  );
+  background: rgba(245, 247, 251, 0.9);
   display: flex;
   flex-direction: column;
 }
 
 .main {
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 24px auto 40px;
   padding: 0 24px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
+
+/* Тулбар */
 
 .toolbar {
   display: flex;
@@ -32,6 +29,12 @@
   gap: 4px;
 }
 
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .title {
   margin: 0;
   font-size: 24px;
@@ -42,6 +45,8 @@
   font-size: 13px;
   color: #6b7280;
 }
+
+/* Переключатель периода */
 
 .periodSwitch {
   display: inline-flex;
@@ -55,28 +60,30 @@
   border: none;
   padding: 6px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 13px;
   background: transparent;
   cursor: pointer;
 }
 
 .periodButtonActive {
-  background: #ffffff;
-  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.4);
+  background: #4f46e5;
+  color: #ffffff;
 }
+
+/* Метрики */
 
 .metricsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .metricCard {
   background: #ffffff;
-  border-radius: 18px;
-  padding: 14px 16px;
+  border-radius: 12px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -93,23 +100,25 @@
 }
 
 .metricHint {
-  font-size: 12px;
+  font-size: 11px;
   color: #9ca3af;
 }
 
+/* Графики */
+
 .chartsGrid {
+  margin-top: 16px;
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-  grid-template-rows: auto;
+  grid-template-columns: 2fr 1fr;
   gap: 16px;
 }
 
 .chartCard {
   background: #ffffff;
-  border-radius: 18px;
-  padding: 14px 16px;
+  border-radius: 12px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -120,31 +129,36 @@
   font-size: 14px;
 }
 
+/* Барчарт активности */
+
 .barChart {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  height: 160px;
-}
-
-.barColumn {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
+  height: 140px;
 }
 
 .bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.barColumn {
   width: 100%;
-  border-radius: 10px 10px 4px 4px;
-  background: linear-gradient(180deg, #4f46e5, #22c55e);
+  border-radius: 999px 999px 0 0;
+  background: #4f46e5;
 }
 
 .barLabel {
   font-size: 11px;
   color: #6b7280;
 }
+
+/* Круговая диаграмма */
 
 .pieRow {
   display: flex;
@@ -156,18 +170,15 @@
   width: 120px;
   height: 120px;
   border-radius: 999px;
-  background: conic-gradient(
-    #4ade80 0 40%,
-    #f97373 40% 70%,
-    #facc15 70% 100%
-  );
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  border: 10px solid #e5edff;
+  border-top-color: #22c55e;
+  border-right-color: #f97316;
+  border-bottom-color: #ef4444;
 }
 
+/* Легенда */
+
 .legend {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -186,25 +197,16 @@
   border-radius: 999px;
 }
 
-.legendDot1 {
-  background: #4ade80;
-}
-
-.legendDot2 {
-  background: #f97373;
-}
-
-.legendDot3 {
-  background: #facc15;
-}
-
 .legendLabel {
-  flex: 1;
+  color: #374151;
 }
 
 .legendValue {
-  font-weight: 600;
+  font-size: 12px;
+  color: #6b7280;
 }
+
+/* Распределение по категориям */
 
 .categoriesChart {
   display: flex;
@@ -213,38 +215,43 @@
 }
 
 .categoryRow {
-  display: grid;
-  grid-template-columns: 120px minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
 }
 
 .categoryLabel {
-  color: #4b5563;
+  font-size: 12px;
+  color: #6b7280;
+  flex-shrink: 0;
+  width: 80px;
 }
 
 .categoryBarWrapper {
-  background: #e5e7eb;
-  border-radius: 999px;
-  overflow: hidden;
+  flex: 1;
   height: 8px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
 }
 
 .categoryBar {
   height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #0d69ff, #22c55e);
+  border-radius: inherit;
+  background: #4f46e5;
 }
 
 .categoryValue {
-  font-weight: 600;
+  font-size: 12px;
+  color: #374151;
+  flex-shrink: 0;
 }
 
-@media (max-width: 960px) {
-  .main {
-    margin: 16px auto 32px;
-    padding: 0 16px;
+/* Адаптив */
+
+@media (max-width: 900px) {
+  .metricsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .chartsGrid {
@@ -254,5 +261,17 @@
   .pieRow {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .main {
+    margin: 16px auto 32px;
+    padding: 0 16px;
   }
 }
