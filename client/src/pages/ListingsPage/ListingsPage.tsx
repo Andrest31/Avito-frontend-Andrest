@@ -185,6 +185,8 @@ export const ListingsPage: React.FC = () => {
     }
   };
 
+  const hasResults = filteredAndSorted.length > 0;
+
   return (
     <div className={styles.page}>
       <Header />
@@ -246,79 +248,85 @@ export const ListingsPage: React.FC = () => {
         <SidebarFilters value={filters} onChange={handleFiltersChange} />
 
         <section className={styles.content}>
-          {viewMode === "grid" ? (
-            <div className={styles.grid}>
-              {pageItems.map((item) => (
-                <Link
-                  key={item.id}
-                  to={`/item/${item.id}`}
-                  className={styles.cardLink}
-                >
-                  <ListingCard item={item as Listing} mode="grid" />
-                </Link>
-              ))}
-            </div>
-          ) : viewMode === "list" ? (
-            <table className={styles.listTable}>
-              <thead>
-                <tr>
-                  <th>Название</th>
-                  <th>Категория</th>
-                  <th>Цена</th>
-                  <th>Статус</th>
-                  <th>Приоритет</th>
-                  <th>Дата</th>
-                </tr>
-              </thead>
-              <tbody>
+          {hasResults ? (
+            viewMode === "grid" ? (
+              <div className={styles.grid}>
                 {pageItems.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <Link
-                        to={`/item/${item.id}`}
-                        className={styles.listTitleLink}
-                      >
-                        {item.title}
-                      </Link>
-                    </td>
-                    <td>{item.category}</td>
-                    <td>{item.price}</td>
-                    <td>
-                      <span
-                        className={`${styles.statusBadge} ${
-                          styles[`status_${item.status}`]
-                        }`}
-                      >
-                        {statusLabel[item.status]}
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className={`${styles.priorityBadge} ${
-                          item.priority === "urgent"
-                            ? styles.priorityBadgeUrgent
-                            : ""
-                        }`}
-                      >
-                        {priorityLabel[item.priority]}
-                      </span>
-                    </td>
-                    <td>{item.createdAt}</td>
-                  </tr>
+                  <Link
+                    key={item.id}
+                    to={`/item/${item.id}`}
+                    className={styles.cardLink}
+                  >
+                    <ListingCard item={item as Listing} mode="grid" />
+                  </Link>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            ) : viewMode === "list" ? (
+              <table className={styles.listTable}>
+                <thead>
+                  <tr>
+                    <th>Название</th>
+                    <th>Категория</th>
+                    <th>Цена</th>
+                    <th>Статус</th>
+                    <th>Приоритет</th>
+                    <th>Дата</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pageItems.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <Link
+                          to={`/item/${item.id}`}
+                          className={styles.listTitleLink}
+                        >
+                          {item.title}
+                        </Link>
+                      </td>
+                      <td>{item.category}</td>
+                      <td>{item.price}</td>
+                      <td>
+                        <span
+                          className={`${styles.statusBadge} ${
+                            styles[`status_${item.status}`]
+                          }`}
+                        >
+                          {statusLabel[item.status]}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          className={`${styles.priorityBadge} ${
+                            item.priority === "urgent"
+                              ? styles.priorityBadgeUrgent
+                              : ""
+                          }`}
+                        >
+                          {priorityLabel[item.priority]}
+                        </span>
+                      </td>
+                      <td>{item.createdAt}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className={styles.rowList}>
+                {pageItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    to={`/item/${item.id}`}
+                    className={styles.cardLink}
+                  >
+                    <ListingCard item={item as Listing} mode="row" />
+                  </Link>
+                ))}
+              </div>
+            )
           ) : (
-            <div className={styles.rowList}>
-              {pageItems.map((item) => (
-                <Link
-                  key={item.id}
-                  to={`/item/${item.id}`}
-                  className={styles.cardLink}
-                >
-                  <ListingCard item={item as Listing} mode="row" />
-                </Link>
-              ))}
+            <div className={styles.emptyState}>
+              <div className={styles.emptyTitle}>Нет подходящих вариантов</div>
             </div>
           )}
         </section>
@@ -327,27 +335,28 @@ export const ListingsPage: React.FC = () => {
           <button
             type="button"
             className={styles.pageNavButton}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || !hasResults}
             onClick={() => handlePageChange(currentPage - 1)}
           >
             Назад
           </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              type="button"
-              className={`${styles.pageButton} ${
-                page === currentPage ? styles.pageButtonActive : ""
-              }`}
-              onClick={() => handlePageChange(page)}
-            >
-              {page}
-            </button>
-          ))}
+          {hasResults &&
+            Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                type="button"
+                className={`${styles.pageButton} ${
+                  page === currentPage ? styles.pageButtonActive : ""
+                }`}
+                onClick={() => handlePageChange(page)}
+              >
+                {page}
+              </button>
+            ))}
           <button
             type="button"
             className={styles.pageNavButton}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || !hasResults}
             onClick={() => handlePageChange(currentPage + 1)}
           >
             Вперёд

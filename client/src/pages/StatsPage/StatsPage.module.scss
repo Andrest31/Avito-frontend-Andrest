@@ -101,12 +101,15 @@
   color: #6b7280;
 }
 
-.periodSwitch {
+:global(.MuiToggleButtonGroup-root).periodSwitch {
   display: inline-flex !important;
   gap: 4px;
   background: rgba(79, 70, 229, 0.08);
   padding: 4px;
-  border-radius: 999px;
+
+  border-radius: 9999px; 
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.25);
 }
 
 .periodButton {
