@@ -9,20 +9,28 @@
   min-height: 260px;
   max-height: 260px;
 }
-
+.cardRow {
+  flex-direction: row;
+  min-height: auto;
+  max-height: none;
+  height: 100px;
+}
 .imageWrapper {
   position: relative;
   width: 100%;
   height: 130px;
   overflow: hidden;
 }
-
+.cardRow .imageWrapper {
+  width: 180px;
+  height: 100px;
+  flex-shrink: 0;
+}
 .image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
 .body {
   padding: 8px 10px;
   display: flex;
@@ -30,25 +38,28 @@
   gap: 4px;
   flex: 1 1 auto;
 }
-
+.cardRow .body {
+  padding: 10px;
+  justify-content: center;
+}
 .title {
   font-size: 13px;
   font-weight: 600;
   line-height: 1.3;
   margin: 0;
 }
-
+.cardRow .title {
+  font-size: 14px;
+}
 .metaTop {
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 13px;
 }
-
 .price {
   font-weight: 700;
 }
-
 .metaBottom {
   display: flex;
   flex-wrap: wrap;
@@ -56,11 +67,9 @@
   font-size: 11px;
   color: #6b7280;
 }
-
 .dot {
   color: #d1d5db;
 }
-
 .statusPills {
   position: absolute;
   left: 8px;
@@ -70,7 +79,10 @@
   gap: 4px;
   align-items: flex-start;
 }
-
+.cardRow .statusPills {
+  flex-direction: row;
+  gap: 6px;
+}
 .status {
   padding: 3px 8px;
   border-radius: 999px;
@@ -78,22 +90,18 @@
   font-weight: 600;
   backdrop-filter: blur(8px);
 }
-
 .status_pending {
   background: rgba(254, 243, 199, 0.95);
   color: #92400e;
 }
-
 .status_approved {
   background: rgba(220, 252, 231, 0.95);
   color: #166534;
 }
-
 .status_rejected {
   background: rgba(254, 226, 226, 0.95);
   color: #b91c1c;
 }
-
 .priority {
   padding: 2px 7px;
   border-radius: 999px;
@@ -103,7 +111,6 @@
   background: rgba(15, 23, 42, 0.65);
   color: #e5e7eb;
 }
-
 .priorityUrgent {
   background: #be123c;
   color: #fef2f2;

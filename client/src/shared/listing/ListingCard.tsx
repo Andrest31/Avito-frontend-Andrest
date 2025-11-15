@@ -1,9 +1,7 @@
 import React from "react";
 import styles from "./ListingCard.module.scss";
-
 export type ModerationStatus = "pending" | "approved" | "rejected";
 export type Priority = "normal" | "urgent";
-
 export type Listing = {
   id: number;
   title: string;
@@ -14,20 +12,18 @@ export type Listing = {
   createdAt: string;
   image: string;
 };
-
 type Props = {
   item: Listing;
+  mode?: "grid" | "row";
 };
-
 const statusLabel: Record<ModerationStatus, string> = {
   pending: "На модерации",
   approved: "Одобрено",
   rejected: "Отклонено",
 };
-
-export const ListingCard: React.FC<Props> = ({ item }) => {
+export const ListingCard: React.FC<Props> = ({ item, mode = "grid" }) => {
   return (
-    <article className={styles.card}>
+    <article className={`${styles.card} ${mode === "row" ? styles.cardRow : ""}`}>
       <div className={styles.imageWrapper}>
         <img src={item.image} alt={item.title} className={styles.image} />
         <div className={styles.statusPills}>
@@ -45,14 +41,11 @@ export const ListingCard: React.FC<Props> = ({ item }) => {
           </span>
         </div>
       </div>
-
       <div className={styles.body}>
         <h2 className={styles.title}>{item.title}</h2>
-
         <div className={styles.metaTop}>
           <span className={styles.price}>{item.price}</span>
         </div>
-
         <div className={styles.metaBottom}>
           <span>{item.category}</span>
           <span className={styles.dot}>•</span>

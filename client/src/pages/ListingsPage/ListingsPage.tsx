@@ -16,29 +16,23 @@ import {
   type ListingWithMeta,
 } from "../../shared/listing/mockListings";
 import styles from "./ListingsPage.module.scss";
-
 const ITEMS_PER_PAGE = 10;
-
-type ViewMode = "grid" | "list";
-
+type ViewMode = "grid" | "list" | "row";
 type SortKey =
   | "date_desc"
   | "date_asc"
   | "price_desc"
   | "price_asc"
   | "priority";
-
 const statusLabel: Record<ModerationStatus, string> = {
   pending: "На модерации",
   approved: "Одобрено",
   rejected: "Отклонено",
 };
-
 const priorityLabel: Record<Priority, string> = {
   normal: "Обычное",
   urgent: "Срочное",
 };
-
 const defaultFilters: Filters = {
   statuses: ["pending", "approved", "rejected"],
   categories: [],
@@ -47,62 +41,50 @@ const defaultFilters: Filters = {
   priceTo: undefined,
   onlyWithPrice: false,
 };
-
 export const ListingsPage: React.FC = () => {
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortKey, setSortKey] = useState<SortKey>("date_desc");
   const [currentPage, setCurrentPage] = useState(1);
-
   const handleFiltersChange = (next: Filters) => {
     setFilters(next);
     setCurrentPage(1);
   };
-
   const handleSortChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ): void => {
     setSortKey(e.target.value as SortKey);
     setCurrentPage(1);
   };
-
   const handleViewChange = (mode: ViewMode) => {
     setViewMode(mode);
   };
-
   const filteredAndSorted: ListingWithMeta[] = useMemo(() => {
     let result = [...mockListings];
-
     if (filters.statuses.length > 0) {
       result = result.filter((item) =>
         filters.statuses.includes(item.status)
       );
     }
-
     if (filters.categories.length > 0) {
       result = result.filter((item) =>
         filters.categories.includes(item.category)
       );
     }
-
     if (filters.priorities.length > 0) {
       result = result.filter((item) =>
         filters.priorities.includes(item.priority)
       );
     }
-
     if (filters.onlyWithPrice) {
       result = result.filter((item) => item.priceValue > 0);
     }
-
     if (filters.priceFrom !== undefined) {
       result = result.filter((item) => item.priceValue >= filters.priceFrom!);
     }
-
     if (filters.priceTo !== undefined) {
       result = result.filter((item) => item.priceValue <= filters.priceTo!);
     }
-
     // сортировка
     result.sort((a, b) => {
       switch (sortKey) {
@@ -123,31 +105,25 @@ export const ListingsPage: React.FC = () => {
           return 0;
       }
     });
-
     return result;
   }, [filters, sortKey]);
-
   const totalPages = Math.max(
     1,
     Math.ceil(filteredAndSorted.length / ITEMS_PER_PAGE)
   );
-
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const pageItems = filteredAndSorted.slice(
     startIndex,
     startIndex + ITEMS_PER_PAGE
   );
-
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
-
   return (
     <div className={styles.page}>
       <Header />
-
       <main className={styles.main}>
         <header className={styles.toolbar}>
           <div className={styles.toolbarLeft}>
@@ -156,7 +132,6 @@ export const ListingsPage: React.FC = () => {
               Найдено {filteredAndSorted.length} объявлений
             </span>
           </div>
-
           <div className={styles.toolbarRight}>
             <label className={styles.sortControl}>
               <span className={styles.sortLabel}>Сортировка:</span>
@@ -172,7 +147,6 @@ export const ListingsPage: React.FC = () => {
                 <option value="priority">По приоритету</option>
               </select>
             </label>
-
             <div className={styles.viewToggle}>
               <button
                 type="button"
@@ -186,6 +160,15 @@ export const ListingsPage: React.FC = () => {
               <button
                 type="button"
                 className={`${styles.viewButton} ${
+                  viewMode === "row" ? styles.viewButtonActive : ""
+                }`}
+                onClick={() => handleViewChange("row")}
+              >
+                ▬
+              </button>
+              <button
+                type="button"
+                className={`${styles.viewButton} ${
                   viewMode === "list" ? styles.viewButtonActive : ""
                 }`}
                 onClick={() => handleViewChange("list")}
@@ -195,9 +178,7 @@ export const ListingsPage: React.FC = () => {
             </div>
           </div>
         </header>
-
         <SidebarFilters value={filters} onChange={handleFiltersChange} />
-
         <section className={styles.content}>
           {viewMode === "grid" ? (
             <div className={styles.grid}>
@@ -207,11 +188,11 @@ export const ListingsPage: React.FC = () => {
                   to={`/item/${item.id}`}
                   className={styles.cardLink}
                 >
-                  <ListingCard item={item as Listing} />
+                  <ListingCard item={item as Listing} mode="grid" />
                 </Link>
               ))}
             </div>
-          ) : (
+          ) : viewMode === "list" ? (
             <table className={styles.listTable}>
               <thead>
                 <tr>
@@ -251,9 +232,20 @@ export const ListingsPage: React.FC = () => {
                 ))}
               </tbody>
             </table>
+          ) : (
+            <div className={styles.rowList}>
+              {pageItems.map((item) => (
+                <Link
+                  key={item.id}
+                  to={`/item/${item.id}`}
+                  className={styles.cardLink}
+                >
+                  <ListingCard item={item as Listing} mode="row" />
+                </Link>
+              ))}
+            </div>
           )}
         </section>
-
         {/* Пагинация */}
         <div className={styles.pagination}>
           <button
@@ -264,7 +256,6 @@ export const ListingsPage: React.FC = () => {
           >
             Назад
           </button>
-
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
@@ -277,7 +268,6 @@ export const ListingsPage: React.FC = () => {
               {page}
             </button>
           ))}
-
           <button
             type="button"
             className={styles.pageNavButton}
