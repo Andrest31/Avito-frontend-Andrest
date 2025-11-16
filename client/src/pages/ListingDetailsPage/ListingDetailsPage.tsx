@@ -9,7 +9,6 @@ import { Header } from "../../shared/layout/Header";
 import styles from "./ListingDetailsPage.module.scss";
 import { adsApi, type Advertisement } from "../../api/ads";
 
-// --------- Типы для нормализованных данных под текущий UI ---------
 type ModerationDecision = "approved" | "rejected" | "returned";
 
 type NormalizedHistoryItem = {
@@ -48,7 +47,6 @@ type NormalizedListing = {
   moderationHistory: NormalizedHistoryItem[];
 };
 
-// ---------- Лейблы статусов ----------
 const statusLabel: Record<Advertisement["status"], string> = {
   pending: "На модерации",
   approved: "Одобрено",
@@ -62,7 +60,6 @@ const decisionLabel: Record<ModerationDecision, string> = {
   returned: "На доработку",
 };
 
-// ВАЖНО: строки ДОЛЖНЫ совпадать с enum reason в OpenAPI
 const REASON_TEMPLATES: string[] = [
   "Запрещенный товар",
   "Неверная категория",
@@ -72,7 +69,6 @@ const REASON_TEMPLATES: string[] = [
   "Другое",
 ];
 
-// ---------- Нормализация ответа API под твой UI ----------
 function normalizeAd(ad: Advertisement): NormalizedListing {
   const randomViews = Math.floor(Math.random() * (120 - 5 + 1)) + 5;
 
@@ -115,7 +111,7 @@ function normalizeAd(ad: Advertisement): NormalizedListing {
           ? "approved"
           : h.action === "rejected"
           ? "rejected"
-          : "returned", // requestChanges → returned
+          : "returned",
       dateISO: h.timestamp,
       comment: h.comment,
     })),
@@ -125,22 +121,13 @@ function normalizeAd(ad: Advertisement): NormalizedListing {
 export const ListingDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-
   const numericId = Number(id);
-
-  // одно объявление
   const [adRaw, setAdRaw] = useState<Advertisement | null>(null);
   const [loadingAd, setLoadingAd] = useState(true);
   const [adError, setAdError] = useState<string | null>(null);
-
-  // все id объявлений (для prev/next)
   const [allIds, setAllIds] = useState<number[]>([]);
   const [loadingIds, setLoadingIds] = useState(true);
-
-  // галерея
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-
-  // модалка причин
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalDecision, setModalDecision] = useState<ModerationDecision | null>(
     null
@@ -149,15 +136,10 @@ export const ListingDetailsPage: React.FC = () => {
     REASON_TEMPLATES[0]
   );
   const [modalComment, setModalComment] = useState("");
-
-  // состояние отправки действий
   const [actionLoading, setActionLoading] = useState(false);
-
-  // тост
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimeoutRef = useRef<number | null>(null);
 
-  // ---------- загрузка одного объявления ----------
   useEffect(() => {
     if (!id || Number.isNaN(numericId)) return;
 
@@ -183,7 +165,6 @@ export const ListingDetailsPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [numericId]);
 
-  // ---------- загрузка списка объявлений для prev/next ----------
   useEffect(() => {
     const controller = new AbortController();
 
@@ -203,7 +184,6 @@ export const ListingDetailsPage: React.FC = () => {
     return () => controller.abort();
   }, []);
 
-  // ---------- тост ----------
   useEffect(() => {
     return () => {
       if (toastTimeoutRef.current) {
@@ -222,10 +202,8 @@ export const ListingDetailsPage: React.FC = () => {
     }, 3000);
   };
 
-  // ---------- нормализованное объявление ----------
   const listing: NormalizedListing | null = adRaw ? normalizeAd(adRaw) : null;
 
-  // ---------- prev / next ----------
   const currentIndex = useMemo(() => {
     if (!allIds.length || Number.isNaN(numericId)) return -1;
     return allIds.indexOf(numericId);
@@ -254,8 +232,6 @@ export const ListingDetailsPage: React.FC = () => {
       timeStyle: "short",
     });
 
-  // ---------- обработка решений модерации ----------
-
   const handleApprove = async () => {
     if (!listing) return;
 
@@ -274,7 +250,6 @@ export const ListingDetailsPage: React.FC = () => {
 
   const openReasonModal = (decision: ModerationDecision) => {
     if (decision === "approved") {
-      // одобрение без модалки
       void handleApprove();
       return;
     }
@@ -302,7 +277,6 @@ export const ListingDetailsPage: React.FC = () => {
         updated = await adsApi.reject(listing.id, selectedReason, comment);
         showToast("Объявление отклонено");
       } else {
-        // returned → request-changes
         updated = await adsApi.requestChanges(
           listing.id,
           selectedReason,
@@ -331,7 +305,6 @@ export const ListingDetailsPage: React.FC = () => {
     setSelectedReason(REASON_TEMPLATES[0]);
   };
 
-  // ---------- состояние загрузки / ошибки / отсутствие ----------
   if (loadingAd) {
     return (
       <div className={styles.page}>

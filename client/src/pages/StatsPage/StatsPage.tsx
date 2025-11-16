@@ -7,7 +7,9 @@ import {
   type Period,
   type ActivityPoint,
   type StatsSummaryResponse,
+  type CategoriesMap,
 } from "../../api/stats";
+
 
 const PERIOD_LABELS: Record<Period, string> = {
   today: "Сегодня",
@@ -27,7 +29,7 @@ type NormalizedStats = {
   avgReviewTime: string;
   dailyActivity: { day: string; value: number }[];
   decisions: { label: string; value: number }[];
-  categories: { label: string; value: number }[];
+  categories: { label: string; value: number }[]; // value = %
 };
 
 // ---------- форматирование / нормализация ----------
@@ -46,7 +48,6 @@ function normalizeActivity(points: ActivityPoint[]): {
   day: string;
   value: number;
 }[] {
-  // Берём последние 7 записей (сервер может прислать 7–8 и больше)
   const last7 = points.slice(-7);
 
   const counts = new Array(7).fill(0) as number[];
@@ -64,10 +65,28 @@ function normalizeActivity(points: ActivityPoint[]): {
   }));
 }
 
+function normalizeCategories(categoriesMap: CategoriesMap): {
+  label: string;
+  value: number; // проценты
+}[] {
+  const entries = Object.entries(categoriesMap || {});
+  if (!entries.length) return [];
+
+  const total = entries.reduce((acc, [, count]) => acc + (count || 0), 0);
+  if (total === 0) return [];
+
+  return entries
+    .map(([label, count]) => ({
+      label,
+      value: Math.round(((count || 0) / total) * 100),
+    }))
+    .sort((a, b) => b.value - a.value);
+}
 
 function buildNormalizedStats(
   summary: StatsSummaryResponse | null,
-  activity: ActivityPoint[]
+  activity: ActivityPoint[],
+  categoriesMap: CategoriesMap
 ): NormalizedStats {
   const safeSummary: StatsSummaryResponse =
     summary ??
@@ -83,8 +102,8 @@ function buildNormalizedStats(
     } as StatsSummaryResponse);
 
   const dailyActivity = normalizeActivity(activity);
+  const categories = normalizeCategories(categoriesMap);
 
-  // распределение решений просто берём из процентов summary
   const decisions = [
     { label: "Одобрено", value: Math.round(safeSummary.approvedPercentage) },
     { label: "Отклонено", value: Math.round(safeSummary.rejectedPercentage) },
@@ -93,9 +112,6 @@ function buildNormalizedStats(
       value: Math.round(safeSummary.requestChangesPercentage),
     },
   ];
-
-  // категории пока пустые — честно покажем сообщение
-  const categories: { label: string; value: number }[] = [];
 
   return {
     totalToday: safeSummary.totalReviewedToday,
@@ -114,11 +130,11 @@ function buildNormalizedStats(
 // ---------- компонент ----------
 
 export const StatsPage: React.FC = () => {
-  // по умолчанию логичнее смотреть неделю
   const [period, setPeriod] = useState<Period>("week");
 
   const [summary, setSummary] = useState<StatsSummaryResponse | null>(null);
   const [activity, setActivity] = useState<ActivityPoint[]>([]);
+  const [categoriesMap, setCategoriesMap] = useState<CategoriesMap>({});
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -129,14 +145,13 @@ export const StatsPage: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    // 2 независимых запроса, без Promise.all — меньше шансов всё уронить
     statsApi
       .getSummary(period, controller.signal)
       .then((data) => {
         setSummary(data);
       })
-      .catch((err) => {
-        if (err.name === "AbortError") return;
+      .catch((err: unknown) => {
+        if (err instanceof DOMException && err.name === "AbortError") return;
         console.error("summary error", err);
         setError("Не удалось загрузить графики статистики");
         setSummary(null);
@@ -147,11 +162,24 @@ export const StatsPage: React.FC = () => {
       .then((data) => {
         setActivity(data || []);
       })
-      .catch((err) => {
-        if (err.name === "AbortError") return;
+      .catch((err: unknown) => {
+        if (err instanceof DOMException && err.name === "AbortError") return;
         console.error("activity error", err);
         setError("Не удалось загрузить графики статистики");
         setActivity([]);
+      });
+
+    // НОВОЕ: подтягиваем распределение по категориям
+    statsApi
+      .getCategories(period, controller.signal)
+      .then((data) => {
+        setCategoriesMap(data || {});
+      })
+      .catch((err: unknown) => {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        console.error("categories error", err);
+        // не убиваем страницу, просто не покажем категории
+        setCategoriesMap({});
       })
       .finally(() => {
         setLoading(false);
@@ -161,8 +189,8 @@ export const StatsPage: React.FC = () => {
   }, [period]);
 
   const stats = useMemo(
-    () => buildNormalizedStats(summary, activity),
-    [summary, activity]
+    () => buildNormalizedStats(summary, activity, categoriesMap),
+    [summary, activity, categoriesMap]
   );
 
   const handlePeriodChange = (
@@ -301,7 +329,9 @@ export const StatsPage: React.FC = () => {
             <span className={styles.metricValue}>
               {Math.round(stats.rejectedPercent)}%
             </span>
-            <span className={styles.metricHint}>Включая нарушения правил</span>
+            <span className={styles.metricHint}>
+              Включая нарушения правил
+            </span>
           </Card>
 
           <Card className={styles.metricCard} elevation={0}>
@@ -390,7 +420,9 @@ export const StatsPage: React.FC = () => {
                         style={{ width: `${item.value}%` }}
                       />
                     </div>
-                    <span className={styles.categoryValue}>{item.value}%</span>
+                    <span className={styles.categoryValue}>
+                      {item.value}%
+                    </span>
                   </div>
                 ))
               )}

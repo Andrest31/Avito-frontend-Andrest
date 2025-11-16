@@ -3,7 +3,7 @@ const API_BASE = "http://localhost:3001/api/v1";
 export type Period = "today" | "week" | "month";
 
 export type ActivityPoint = {
-  date: string; // "2025-11-16"
+  date: string;
   approved: number;
   rejected: number;
   requestChanges: number;
@@ -17,11 +17,9 @@ export type StatsSummaryResponse = {
   approvedPercentage: number;
   rejectedPercentage: number;
   requestChangesPercentage: number;
-  // судя по ответу, это секунды
   averageReviewTime: number;
 };
 
-// на будущее, если всё-таки заведёшь категории
 export type CategoriesMap = Record<string, number>;
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
@@ -68,7 +66,6 @@ export const statsApi = {
     );
   },
 
-  // если потом появятся норм данные по категориям — дёрнешь
   async getCategories(
     period: Period,
     signal?: AbortSignal

@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./Header.module.scss";
 import { Link, useLocation } from "react-router-dom";
 import { useSearch } from "../search/SearchContext";
 import { useTheme } from "../theme/ThemeContext";
+
+interface Moderator {
+  id: number;
+  name: string;
+  role: string;
+}
 
 export const Header: React.FC = () => {
   const location = useLocation();
@@ -10,6 +16,26 @@ export const Header: React.FC = () => {
 
   const { query, setQuery } = useSearch();
   const { theme, toggleTheme } = useTheme();
+  const [moderator, setModerator] = useState<Moderator | null>(null);
+
+  useEffect(() => {
+    const fetchModerator = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:3001/api/v1/moderators/me"
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: Moderator = await response.json();
+        setModerator(data);
+      } catch (error) {
+        console.error("Error fetching moderator:", error);
+      }
+    };
+
+    fetchModerator();
+  }, []);
 
   return (
     <header className={styles.header}>
@@ -51,9 +77,7 @@ export const Header: React.FC = () => {
           className={styles.themeToggle}
           onClick={toggleTheme}
           aria-label={
-            theme === "dark"
-              ? "Включить светлую тему"
-              : "Включить тёмную тему"
+            theme === "dark" ? "Включить светлую тему" : "Включить тёмную тему"
           }
         >
           <svg
@@ -83,11 +107,25 @@ export const Header: React.FC = () => {
         </Link>
 
         <div className={styles.headerProfile}>
-          <span className={styles.profileAvatar}>У</span>
-          <div className={styles.profileInfo}>
-            <span className={styles.profileName}>Уважаемый</span>
-            <span className={styles.profileRole}>стажер</span>
-          </div>
+          {moderator ? (
+            <>
+              <span className={styles.profileAvatar}>
+                {moderator.name.charAt(0)}
+              </span>
+              <div className={styles.profileInfo}>
+                <span className={styles.profileName}>{moderator?.name}</span>
+                <span className={styles.profileRole}>{moderator?.role}</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className={styles.profileAvatar}>З</span>
+              <div className={styles.profileInfo}>
+                <span className={styles.profileName}>Загрузка</span>
+                <span className={styles.profileRole}>Загрузка</span>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </header>
