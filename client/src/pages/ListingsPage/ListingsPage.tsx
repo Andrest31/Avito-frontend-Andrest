@@ -18,7 +18,6 @@ import {
 import { useSearch } from "../../shared/search/SearchContext";
 import styles from "./ListingsPage.module.scss";
 import {
-  Chip,
   FormControl,
   Select,
   MenuItem,
@@ -229,7 +228,7 @@ export const ListingsPage: React.FC = () => {
                 }`}
                 onClick={() => handleViewChange("grid")}
               >
-                ⬛
+                ▇
               </button>
               <button
                 type="button"
@@ -295,22 +294,24 @@ export const ListingsPage: React.FC = () => {
                       <td>{item.category}</td>
                       <td>{item.price}</td>
                       <td>
-                        <Chip
-                          label={statusLabel[item.status]}
+                        <span
                           className={`${styles.statusBadge} ${
                             styles[`status_${item.status}`]
                           }`}
-                        />
+                        >
+                          {statusLabel[item.status]}
+                        </span>
                       </td>
                       <td>
-                        <Chip
-                          label={priorityLabel[item.priority]}
+                        <span
                           className={`${styles.priorityBadge} ${
                             item.priority === "urgent"
                               ? styles.priorityBadgeUrgent
                               : ""
                           }`}
-                        />
+                        >
+                          {priorityLabel[item.priority]}
+                        </span>
                       </td>
                       <td>{item.createdAt}</td>
                     </tr>
