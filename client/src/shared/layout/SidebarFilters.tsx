@@ -3,7 +3,7 @@ import styles from "./SidebarFilters.module.scss";
 import type { ModerationStatus, Priority } from "../listing/ListingCard";
 import type { ModerationDecision } from "../listing/moderationDecision";
 
-const ALL_CATEGORIES = ["Электроника", "Мебель", "Одежда", "Услуги"];
+const ALL_CATEGORIES = ["Электроника", "Услуги", "Детское", "Мода", "Недвижимость"];
 
 export type Filters = {
   statuses: ModerationStatus[];

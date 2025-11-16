@@ -46,18 +46,16 @@ function normalizeActivity(points: ActivityPoint[]): {
   day: string;
   value: number;
 }[] {
+  // Берём последние 7 записей (сервер может прислать 7–8 и больше)
+  const last7 = points.slice(-7);
+
   const counts = new Array(7).fill(0) as number[];
 
-  points.forEach((p) => {
-    const date = new Date(p.date);
-    if (Number.isNaN(date.getTime())) return;
-
-    const dow = date.getDay(); // 0 — Вс ... 6 — Сб
-    const idx = dow === 0 ? 6 : dow - 1;
-
+  last7.forEach((p, index) => {
+    if (index > 6) return;
     const total =
       (p.approved || 0) + (p.rejected || 0) + (p.requestChanges || 0);
-    counts[idx] += total;
+    counts[index] = total;
   });
 
   return DAY_LABELS.map((day, idx) => ({
@@ -65,6 +63,7 @@ function normalizeActivity(points: ActivityPoint[]): {
     value: counts[idx],
   }));
 }
+
 
 function buildNormalizedStats(
   summary: StatsSummaryResponse | null,
@@ -243,9 +242,7 @@ export const StatsPage: React.FC = () => {
             <p className={styles.subtitle}>
               Сводка по проверенным объявлениям и эффективности работы.
             </p>
-            {error && (
-              <div className={styles.errorBanner}>{error}</div>
-            )}
+            {error && <div className={styles.errorBanner}>{error}</div>}
           </div>
           <div className={styles.toolbarRight}>
             <div className={styles.exportGroup}>
@@ -393,9 +390,7 @@ export const StatsPage: React.FC = () => {
                         style={{ width: `${item.value}%` }}
                       />
                     </div>
-                    <span className={styles.categoryValue}>
-                      {item.value}%
-                    </span>
+                    <span className={styles.categoryValue}>{item.value}%</span>
                   </div>
                 ))
               )}
