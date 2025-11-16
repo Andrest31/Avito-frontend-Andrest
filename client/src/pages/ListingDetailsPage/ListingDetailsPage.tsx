@@ -1,91 +1,127 @@
-import React, { useMemo, useState, useRef, useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Header } from "../../shared/layout/Header";
 import styles from "./ListingDetailsPage.module.scss";
-import {
-  getInitialListings,
-  saveListingsState,
-  type ListingWithMeta,
-  type ModerationHistoryItem,
-  type Characteristic,
-  type ModerationDecision,
-} from "../../shared/listing/mockListings";
-import type { ModerationStatus } from "../../shared/listing/ListingCard";
 
-const statusLabel: Record<ModerationStatus, string> = {
+// API
+import { adsApi, type Advertisement } from "../../api/ads";
+
+// -------- Normalizer ----------
+function normalize(ad: Advertisement) {
+  return {
+    id: ad.id,
+    title: ad.title,
+    description: ad.description,
+    price: ad.price.toLocaleString("ru-RU") + " ₽",
+    category: ad.category,
+    status: ad.status,
+    priority: ad.priority,
+    createdAt: new Date(ad.createdAt).toLocaleString("ru-RU", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    views: 0,
+    gallery: ad.images,
+    characteristics: Object.entries(ad.characteristics).map(([key, value]) => ({
+      key,
+      value,
+    })),
+    seller: {
+      name: ad.seller.name,
+      rating: Number(ad.seller.rating),
+      totalListings: ad.seller.totalAds,
+      registeredAt: new Date(ad.seller.registeredAt).toLocaleDateString(
+        "ru-RU"
+      ),
+    },
+    moderationHistory: ad.moderationHistory.map((h) => ({
+      id: h.id,
+      moderator: h.moderatorName,
+      decision:
+        h.action === "approved"
+          ? "approved"
+          : h.action === "rejected"
+          ? "rejected"
+          : "returned",
+      dateISO: h.timestamp,
+      comment: h.comment,
+    })),
+  };
+}
+
+// ---------- Status labels ----------
+const statusLabel: Record<Advertisement["status"], string> = {
   pending: "На модерации",
   approved: "Одобрено",
   rejected: "Отклонено",
+  draft: "Черновик",
 };
-
-const decisionLabel: Record<ModerationDecision, string> = {
-  approved: "Одобрено",
-  rejected: "Отклонено",
-  returned: "На доработку",
-};
-
-const REASON_TEMPLATES = [
-  "Запрещённый товар",
-  "Неверная категория",
-  "Некорректное описание",
-  "Проблемы с фото",
-  "Подозрение на мошенничество",
-  "Другое",
-];
 
 export const ListingDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
-  const [listings, setListings] = useState<ListingWithMeta[]>(() =>
-    getInitialListings()
-  );
+  const [adRaw, setAdRaw] = useState<Advertisement | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalDecision, setModalDecision] =
-    useState<ModerationDecision | null>(null);
-  const [selectedReason, setSelectedReason] = useState<string>(
-    REASON_TEMPLATES[0]
-  );
-  const [modalComment, setModalComment] = useState("");
-
+  // Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const toastTimeoutRef = useRef<number | null>(null);
-
-  const listingId = Number(id);
-  const index = useMemo(
-    () => listings.findIndex((item) => item.id === listingId),
-    [listings, listingId]
-  );
-
-  const listing = index >= 0 ? listings[index] : null;
-
-  const prevId = index > 0 ? listings[index - 1].id : undefined;
-  const nextId =
-    index >= 0 && index < listings.length - 1
-      ? listings[index + 1].id
-      : undefined;
+  const toastRef = useRef<number | null>(null);
 
   useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  setLoading(true);
+  setError(null);
+}, [id]);
+
+  useEffect(() => {
+  if (!id) return;
+
+  const controller = new AbortController();
+
+  adsApi
+    .getById(Number(id))
+    .then((data) => setAdRaw(data))
+    .catch((err) => {
+      if (err.name !== "AbortError") setError(err.message);
+    })
+    .finally(() => setLoading(false));
+
+  return () => controller.abort();
+}, [id]);
+
+
+  // ------ Toast cleanup ------
+  useEffect(() => {
     return () => {
-      if (toastTimeoutRef.current) {
-        window.clearTimeout(toastTimeoutRef.current);
-      }
+      if (toastRef.current) clearTimeout(toastRef.current);
     };
   }, []);
 
-  const showToast = (message: string) => {
-    if (toastTimeoutRef.current) {
-      window.clearTimeout(toastTimeoutRef.current);
-    }
-    setToastMessage(message);
-    toastTimeoutRef.current = window.setTimeout(() => {
-      setToastMessage(null);
-    }, 3000);
+  const showToast = (text: string) => {
+    if (toastRef.current) clearTimeout(toastRef.current);
+    setToastMessage(text);
+
+    toastRef.current = window.setTimeout(() => setToastMessage(null), 3000);
   };
 
-  if (!listing || Number.isNaN(listingId)) {
+  // Not loaded / error
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <Header />
+        <main className={styles.main}>Загрузка объявления…</main>
+      </div>
+    );
+  }
+
+  if (error || !adRaw) {
     return (
       <div className={styles.page}>
         <Header />
@@ -97,100 +133,20 @@ export const ListingDetailsPage: React.FC = () => {
           >
             ← Назад к списку
           </button>
-          <div className={styles.card}>Объявление не найдено.</div>
+          <div className={styles.card}>Ошибка загрузки объявления.</div>
         </main>
       </div>
     );
   }
 
-  const applyDecision = (
-    decision: ModerationDecision,
-    commentFromModal?: string
-  ) => {
-    const nextStatus: ModerationStatus =
-      decision === "approved"
-        ? "approved"
-        : decision === "rejected"
-        ? "rejected"
-        : "pending";
+  const listing = normalize(adRaw);
 
-    const finalComment =
-      commentFromModal ||
-      (decision === "approved"
-        ? "Объявление одобрено"
-        : decision === "returned"
-        ? "Объявление возвращено на доработку"
-        : "Объявление отклонено");
-
-    setListings((prev) => {
-      const updated: ListingWithMeta[] = prev.map((item, idx) => {
-        if (idx !== index) return item;
-
-        const now = new Date();
-        const historyItem: ModerationHistoryItem = {
-          id: item.moderationHistory.length + 1,
-          moderator: "Текущий модератор",
-          decision,
-          dateISO: now.toISOString(),
-          comment: finalComment,
-        };
-
-        return {
-          ...item,
-          status: nextStatus,
-          moderationHistory: [...item.moderationHistory, historyItem],
-        };
-      });
-
-      saveListingsState(updated);
-      return updated;
-    });
-  };
-
-  const openReasonModal = (decision: ModerationDecision) => {
-    if (decision === "approved") {
-      applyDecision("approved");
-      showToast("Объявление одобрено");
-      return;
-    }
-    setModalDecision(decision);
-    setIsModalOpen(true);
-  };
-
-  const handleModalConfirm = () => {
-    if (!modalDecision) return;
-    if (!selectedReason.trim()) {
-      alert("Выберите причину");
-      return;
-    }
-
-    const comment =
-      modalComment.trim().length > 0
-        ? `${selectedReason}: ${modalComment.trim()}`
-        : selectedReason;
-
-    applyDecision(modalDecision, comment);
-
-    if (modalDecision === "approved") {
-      showToast("Объявление одобрено");
-    }
-
-    setIsModalOpen(false);
-    setModalDecision(null);
-    setModalComment("");
-    setSelectedReason(REASON_TEMPLATES[0]);
-  };
-
-  const handleModalCancel = () => {
-    setIsModalOpen(false);
-    setModalDecision(null);
-    setModalComment("");
-    setSelectedReason(REASON_TEMPLATES[0]);
-  };
+  // -------- Prev/Next placeholders (will connect later) -------
+  const prevId = undefined;
+  const nextId = undefined;
 
   const historySorted = [...listing.moderationHistory].sort(
-    (a, b) =>
-      new Date(a.dateISO).getTime() - new Date(b.dateISO).getTime()
+    (a, b) => new Date(a.dateISO).getTime() - new Date(b.dateISO).getTime()
   );
 
   const formatDate = (iso: string) =>
@@ -202,8 +158,8 @@ export const ListingDetailsPage: React.FC = () => {
   const handleNav = (targetId?: number) => {
     if (!targetId) return;
     navigate(`/item/${targetId}`);
-    window.scrollTo({ top: 0, behavior: "smooth" });
     setActiveImageIndex(0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -276,10 +232,11 @@ export const ListingDetailsPage: React.FC = () => {
                   alt={listing.title}
                   className={styles.mainImage}
                 />
+
                 <div className={styles.thumbnails}>
                   {listing.gallery.map((src, idx) => (
                     <button
-                      key={src}
+                      key={idx}
                       type="button"
                       className={`${styles.thumbnailButton} ${
                         idx === activeImageIndex
@@ -300,73 +257,64 @@ export const ListingDetailsPage: React.FC = () => {
 
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>Описание</h2>
-                <p className={styles.description}>
-                  {listing.description}
-                </p>
+                <p className={styles.description}>{listing.description}</p>
               </section>
 
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>Характеристики</h2>
                 <table className={styles.characteristicsTable}>
                   <tbody>
-                    {listing.characteristics.map(
-                      (row: Characteristic) => (
-                        <tr key={row.key}>
-                          <td className={styles.characteristicsKey}>
-                            {row.key}
-                          </td>
-                          <td className={styles.characteristicsValue}>
-                            {row.value}
-                          </td>
-                        </tr>
-                      )
-                    )}
+                    {listing.characteristics.map((row) => (
+                      <tr key={row.key}>
+                        <td className={styles.characteristicsKey}>
+                          {row.key}
+                        </td>
+                        <td className={styles.characteristicsValue}>
+                          {row.value}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </section>
             </div>
 
-            <section
-              className={`${styles.card} ${styles.historyCard}`}
-            >
-              <h2 className={styles.sectionTitle}>
-                История модерации
-              </h2>
+            <section className={`${styles.card} ${styles.historyCard}`}>
+              <h2 className={styles.sectionTitle}>История модерации</h2>
+
               <ul className={styles.historyList}>
-                {historySorted.map(
-                  (item: ModerationHistoryItem, idx) => (
-                    <li
-                      key={item.id}
-                      className={styles.historyItem}
-                    >
-                      <div className={styles.historyBullet} />
-                      <div className={styles.historyContent}>
-                        <div className={styles.historyTopRow}>
-                          <span className={styles.historyModerator}>
-                            {item.moderator}
-                          </span>
-                          <span className={styles.historyDecision}>
-                            {decisionLabel[item.decision]}
-                          </span>
-                          <span className={styles.historyDate}>
-                            {formatDate(item.dateISO)}
-                          </span>
-                        </div>
-                        {item.comment && (
-                          <p className={styles.historyComment}>
-                            {item.comment}
-                          </p>
-                        )}
-                        {idx <
-                          historySorted.length - 1 && (
-                          <div
-                            className={styles.historyConnector}
-                          />
-                        )}
+                {historySorted.map((item, idx) => (
+                  <li key={item.id} className={styles.historyItem}>
+                    <div className={styles.historyBullet} />
+                    <div className={styles.historyContent}>
+                      <div className={styles.historyTopRow}>
+                        <span className={styles.historyModerator}>
+                          {item.moderator}
+                        </span>
+                        <span className={styles.historyDecision}>
+                          {item.decision === "approved"
+                            ? "Одобрено"
+                            : item.decision === "rejected"
+                            ? "Отклонено"
+                            : "На доработку"}
+                        </span>
+                        <span className={styles.historyDate}>
+                          {formatDate(item.dateISO)}
+                        </span>
                       </div>
-                    </li>
-                  )
-                )}
+
+                      {item.comment && (
+                        <p className={styles.historyComment}>
+                          {item.comment}
+                        </p>
+                      )}
+
+                      {idx < historySorted.length - 1 && (
+                        <div className={styles.historyConnector} />
+                      )}
+                    </div>
+                  </li>
+                ))}
               </ul>
             </section>
           </section>
@@ -378,7 +326,7 @@ export const ListingDetailsPage: React.FC = () => {
                   Решение модератора
                 </span>
                 <span className={styles.sideBlockHint}>
-                  Применяется только после выбора действия
+                  В следующем шаге подключим POST-запросы
                 </span>
               </div>
 
@@ -386,21 +334,23 @@ export const ListingDetailsPage: React.FC = () => {
                 <button
                   type="button"
                   className={`${styles.actionButton} ${styles.actionApprove}`}
-                  onClick={() => openReasonModal("approved")}
+                  onClick={() => showToast("Пока не подключено")}
                 >
                   Одобрить
                 </button>
+
                 <button
                   type="button"
                   className={`${styles.actionButton} ${styles.actionReject}`}
-                  onClick={() => openReasonModal("rejected")}
+                  onClick={() => showToast("Пока не подключено")}
                 >
                   Отклонить
                 </button>
+
                 <button
                   type="button"
                   className={`${styles.actionButton} ${styles.actionReturn}`}
-                  onClick={() => openReasonModal("returned")}
+                  onClick={() => showToast("Пока не подключено")}
                 >
                   Вернуть на доработку
                 </button>
@@ -418,8 +368,8 @@ export const ListingDetailsPage: React.FC = () => {
                   </div>
                   <div className={styles.sellerStatus}>
                     Рейтинг {listing.seller.rating.toFixed(1)} ·{" "}
-                    {listing.seller.totalListings} объявлений · на площадке с{" "}
-                    {listing.seller.registeredAt}
+                    {listing.seller.totalListings} объявлений · на площадке
+                    с {listing.seller.registeredAt}
                   </div>
                 </div>
               </div>
@@ -434,6 +384,7 @@ export const ListingDetailsPage: React.FC = () => {
               >
                 ← Предыдущее
               </button>
+
               <button
                 type="button"
                 className={styles.navButton}
@@ -445,54 +396,6 @@ export const ListingDetailsPage: React.FC = () => {
             </div>
           </aside>
         </div>
-
-        {isModalOpen && (
-          <div className={styles.modalBackdrop}>
-            <div className={styles.modal}>
-              <h3 className={styles.modalTitle}>Выберите причину</h3>
-
-              <div className={styles.modalReasons}>
-                {REASON_TEMPLATES.map((reason) => (
-                  <label key={reason} className={styles.modalReasonRow}>
-                    <input
-                      type="radio"
-                      name="rejectReason"
-                      value={reason}
-                      checked={selectedReason === reason}
-                      onChange={() => setSelectedReason(reason)}
-                    />
-                    <span>{reason}</span>
-                  </label>
-                ))}
-              </div>
-
-              <textarea
-                className={styles.modalComment}
-                placeholder="Дополнительный комментарий (необязательно)"
-                value={modalComment}
-                onChange={(e) => setModalComment(e.target.value)}
-                rows={3}
-              />
-
-              <div className={styles.modalActions}>
-                <button
-                  type="button"
-                  className={styles.modalCancel}
-                  onClick={handleModalCancel}
-                >
-                  Отмена
-                </button>
-                <button
-                  type="button"
-                  className={styles.modalConfirm}
-                  onClick={handleModalConfirm}
-                >
-                  Подтвердить
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );

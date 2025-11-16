@@ -1,0 +1,1 @@
+export type ModerationDecision = "approved" | "rejected" | "returned";

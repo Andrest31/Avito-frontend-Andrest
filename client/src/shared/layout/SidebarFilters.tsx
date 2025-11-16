@@ -1,7 +1,7 @@
 import React, { type ChangeEvent } from "react";
 import styles from "./SidebarFilters.module.scss";
 import type { ModerationStatus, Priority } from "../listing/ListingCard";
-import type { ModerationDecision } from "../listing/mockListings";
+import type { ModerationDecision } from "../listing/moderationDecision";
 
 const ALL_CATEGORIES = ["Электроника", "Мебель", "Одежда", "Услуги"];
 
