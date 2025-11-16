@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./ListingCard.module.scss";
 
-export type ModerationStatus = "pending" | "approved" | "rejected";
+export type ModerationStatus = "pending" | "approved" | "rejected" | "draft";
 export type Priority = "normal" | "urgent";
 
 export type Listing = {
@@ -27,6 +27,7 @@ const statusLabel: Record<ModerationStatus, string> = {
   pending: "На модерации",
   approved: "Одобрено",
   rejected: "Отклонено",
+  draft: "Черновик",
 };
 
 export const ListingCard: React.FC<Props> = ({

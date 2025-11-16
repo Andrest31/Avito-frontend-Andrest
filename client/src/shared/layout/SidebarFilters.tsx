@@ -3,7 +3,16 @@ import styles from "./SidebarFilters.module.scss";
 import type { ModerationStatus, Priority } from "../listing/ListingCard";
 import type { ModerationDecision } from "../listing/moderationDecision";
 
-const ALL_CATEGORIES = ["Электроника", "Услуги", "Детское", "Мода", "Недвижимость"];
+const ALL_CATEGORIES = [
+  "Детское",
+  "Животные",
+  "Мода",
+  "Недвижимость",
+  "Работа",
+  "Транспорт",
+  "Услуги",
+  "Электроника",
+];
 
 export type Filters = {
   statuses: ModerationStatus[];
@@ -51,8 +60,7 @@ export const SidebarFilters: React.FC<Props> = ({
   };
 
   const handlePriceChange =
-    (field: "priceFrom" | "priceTo") =>
-    (e: ChangeEvent<HTMLInputElement>) => {
+    (field: "priceFrom" | "priceTo") => (e: ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value.trim();
       const num = raw === "" ? undefined : Number(raw);
       onChange({
