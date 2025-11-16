@@ -13,7 +13,10 @@ import {
 } from "../../shared/layout/SidebarFilters";
 import {
   getInitialListings,
+  saveListingsState,
   type ListingWithMeta,
+  type ModerationHistoryItem,
+  type ModerationDecision,
 } from "../../shared/listing/mockListings";
 import { useSearch } from "../../shared/search/SearchContext";
 import styles from "./ListingsPage.module.scss";
@@ -85,11 +88,16 @@ const parseCreatedAt = (createdAt: string): number => {
 };
 
 export const ListingsPage: React.FC = () => {
-  const [listings] = useState<ListingWithMeta[]>(() => getInitialListings());
+  const [listings, setListings] = useState<ListingWithMeta[]>(() =>
+    getInitialListings()
+  );
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortKey, setSortKey] = useState<SortKey>("date_desc");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   const { query } = useSearch();
 
@@ -105,6 +113,59 @@ export const ListingsPage: React.FC = () => {
 
   const handleViewChange = (mode: ViewMode) => {
     setViewMode(mode);
+  };
+
+  const toggleSelectId = (id: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const clearSelection = () => {
+    setSelectedIds([]);
+    setIsSelectionMode(false);
+  };
+
+  const applyBulkDecision = (decision: ModerationDecision) => {
+    if (!selectedIds.length) return;
+
+    const nextStatus: ModerationStatus =
+      decision === "approved"
+        ? "approved"
+        : decision === "rejected"
+          ? "rejected"
+          : "pending";
+
+    setListings((prev) => {
+      const updated = prev.map((item) => {
+        if (!selectedIds.includes(item.id)) return item;
+
+        const now = new Date();
+        const historyItem: ModerationHistoryItem = {
+          id: item.moderationHistory.length + 1,
+          moderator: "Текущий модератор",
+          decision,
+          dateISO: now.toISOString(),
+          comment:
+            decision === "approved"
+              ? "Объявление одобрено (массовое действие)"
+              : decision === "rejected"
+                ? "Объявление отклонено (массовое действие)"
+                : "Объявление отправлено на доработку (массовое действие)",
+        };
+
+        return {
+          ...item,
+          status: nextStatus,
+          moderationHistory: [...item.moderationHistory, historyItem],
+        };
+      });
+
+      saveListingsState(updated);
+      return updated;
+    });
+
+    clearSelection();
   };
 
   const filteredAndSorted: ListingWithMeta[] = useMemo(() => {
@@ -252,6 +313,50 @@ export const ListingsPage: React.FC = () => {
           </div>
         </header>
 
+        <div className={styles.bulkBar}>
+          <button
+            type="button"
+            className={`${styles.bulkSelectButton} ${
+              isSelectionMode ? styles.bulkSelectButtonActive : ""
+            }`}
+            onClick={() =>
+              setIsSelectionMode((prev) => {
+                const next = !prev;
+                if (!next) setSelectedIds([]);
+                return next;
+              })
+            }
+          >
+            {isSelectionMode ? "Отменить выбор" : "Выбрать"}
+          </button>
+
+          {isSelectionMode && (
+            <div className={styles.bulkStatusGroup}>
+              <button
+                type="button"
+                className={`${styles.bulkStatusButton} ${styles.bulkStatusPending}`}
+                onClick={() => applyBulkDecision("returned")}
+              >
+                На модерации
+              </button>
+              <button
+                type="button"
+                className={`${styles.bulkStatusButton} ${styles.bulkStatusApproved}`}
+                onClick={() => applyBulkDecision("approved")}
+              >
+                Одобрить
+              </button>
+              <button
+                type="button"
+                className={`${styles.bulkStatusButton} ${styles.bulkStatusRejected}`}
+                onClick={() => applyBulkDecision("rejected")}
+              >
+                Отклонить
+              </button>
+            </div>
+          )}
+        </div>
+
         <SidebarFilters value={filters} onChange={handleFiltersChange} />
 
         <section className={styles.content}>
@@ -264,7 +369,13 @@ export const ListingsPage: React.FC = () => {
                     to={`/item/${item.id}`}
                     className={styles.cardLink}
                   >
-                    <ListingCard item={item as Listing} mode="grid" />
+                    <ListingCard
+                      item={item as unknown as Listing}
+                      mode="grid"
+                      selectable={isSelectionMode}
+                      selected={selectedIds.includes(item.id)}
+                      onToggleSelect={() => toggleSelectId(item.id)}
+                    />
                   </Link>
                 ))}
               </div>
@@ -272,6 +383,7 @@ export const ListingsPage: React.FC = () => {
               <table className={styles.listTable}>
                 <thead>
                   <tr>
+                    {isSelectionMode && <th />}
                     <th>Название</th>
                     <th>Категория</th>
                     <th>Цена</th>
@@ -281,41 +393,64 @@ export const ListingsPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {pageItems.map((item) => (
-                    <tr key={item.id}>
-                      <td>
-                        <Link
-                          to={`/item/${item.id}`}
-                          className={styles.listTitleLink}
-                        >
-                          {item.title}
-                        </Link>
-                      </td>
-                      <td>{item.category}</td>
-                      <td>{item.price}</td>
-                      <td>
-                        <span
-                          className={`${styles.statusBadge} ${
-                            styles[`status_${item.status}`]
-                          }`}
-                        >
-                          {statusLabel[item.status]}
-                        </span>
-                      </td>
-                      <td>
-                        <span
-                          className={`${styles.priorityBadge} ${
-                            item.priority === "urgent"
-                              ? styles.priorityBadgeUrgent
-                              : ""
-                          }`}
-                        >
-                          {priorityLabel[item.priority]}
-                        </span>
-                      </td>
-                      <td>{item.createdAt}</td>
-                    </tr>
-                  ))}
+                  {pageItems.map((item) => {
+                    const selected = selectedIds.includes(item.id);
+                    return (
+                      <tr
+                        key={item.id}
+                        className={selected ? styles.listRowSelected : ""}
+                      >
+                        {isSelectionMode && (
+                          <td>
+                            <button
+                              type="button"
+                              className={`${styles.rowSelectCheckbox} ${
+                                selected ? styles.rowSelectCheckboxActive : ""
+                              }`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                toggleSelectId(item.id);
+                              }}
+                            >
+                              {selected ? "✓" : ""}
+                            </button>
+                          </td>
+                        )}
+                        <td>
+                          <Link
+                            to={`/item/${item.id}`}
+                            className={styles.listTitleLink}
+                          >
+                            {item.title}
+                          </Link>
+                        </td>
+                        <td>{item.category}</td>
+                        <td>{item.price}</td>
+                        <td>
+                          <span
+                            className={`${styles.statusBadge} ${
+                              styles[`status_${item.status}`]
+                            }`}
+                          >
+                            {statusLabel[item.status]}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            className={`${styles.priorityBadge} ${
+                              item.priority === "urgent"
+                                ? styles.priorityBadgeUrgent
+                                : ""
+                            }`}
+                          >
+                            {priorityLabel[item.priority]}
+                          </span>
+                        </td>
+                        <td>{item.createdAt}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             ) : (
@@ -326,7 +461,13 @@ export const ListingsPage: React.FC = () => {
                     to={`/item/${item.id}`}
                     className={styles.cardLink}
                   >
-                    <ListingCard item={item as Listing} mode="row" />
+                    <ListingCard
+                      item={item as unknown as Listing}
+                      mode="row"
+                      selectable={isSelectionMode}
+                      selected={selectedIds.includes(item.id)}
+                      onToggleSelect={() => toggleSelectId(item.id)}
+                    />
                   </Link>
                 ))}
               </div>
