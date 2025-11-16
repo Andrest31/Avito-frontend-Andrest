@@ -77,7 +77,7 @@ export const adsApi = {
   },
 
   async approve(id: number): Promise<Advertisement> {
-    const res = await request<{ ad: Advertisement }>(
+    const res = await request<{ message: string; ad: Advertisement }>(
       `${API_BASE}/ads/${id}/approve`,
       { method: "POST" }
     );
@@ -89,7 +89,7 @@ export const adsApi = {
     reason: string,
     comment?: string
   ): Promise<Advertisement> {
-    const res = await request<{ ad: Advertisement }>(
+    const res = await request<{ message: string; ad: Advertisement }>(
       `${API_BASE}/ads/${id}/reject`,
       {
         method: "POST",
@@ -104,7 +104,7 @@ export const adsApi = {
     reason: string,
     comment?: string
   ): Promise<Advertisement> {
-    const res = await request<{ ad: Advertisement }>(
+    const res = await request<{ message: string; ad: Advertisement }>(
       `${API_BASE}/ads/${id}/request-changes`,
       {
         method: "POST",

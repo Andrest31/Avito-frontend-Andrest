@@ -1,14 +1,21 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Header } from "../../shared/layout/Header";
 import styles from "./ListingDetailsPage.module.scss";
 import { adsApi, type Advertisement } from "../../api/ads";
 
-// ---------- Тип нормализованного объявления под текущий UI ----------
+// --------- Типы для нормализованных данных под текущий UI ---------
+type ModerationDecision = "approved" | "rejected" | "returned";
+
 type NormalizedHistoryItem = {
   id: number;
   moderator: string;
-  decision: "approved" | "rejected" | "returned";
+  decision: ModerationDecision;
   dateISO: string;
   comment: string;
 };
@@ -48,6 +55,22 @@ const statusLabel: Record<Advertisement["status"], string> = {
   rejected: "Отклонено",
   draft: "Черновик",
 };
+
+const decisionLabel: Record<ModerationDecision, string> = {
+  approved: "Одобрено",
+  rejected: "Отклонено",
+  returned: "На доработку",
+};
+
+// ВАЖНО: строки ДОЛЖНЫ совпадать с enum reason в OpenAPI
+const REASON_TEMPLATES: string[] = [
+  "Запрещенный товар",
+  "Неверная категория",
+  "Некорректное описание",
+  "Проблемы с фото",
+  "Подозрение на мошенничество",
+  "Другое",
+];
 
 // ---------- Нормализация ответа API под твой UI ----------
 function normalizeAd(ad: Advertisement): NormalizedListing {
@@ -91,8 +114,8 @@ function normalizeAd(ad: Advertisement): NormalizedListing {
         h.action === "approved"
           ? "approved"
           : h.action === "rejected"
-            ? "rejected"
-            : "returned",
+          ? "rejected"
+          : "returned", // requestChanges → returned
       dateISO: h.timestamp,
       comment: h.comment,
     })),
@@ -116,6 +139,19 @@ export const ListingDetailsPage: React.FC = () => {
 
   // галерея
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  // модалка причин
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalDecision, setModalDecision] = useState<ModerationDecision | null>(
+    null
+  );
+  const [selectedReason, setSelectedReason] = useState<string>(
+    REASON_TEMPLATES[0]
+  );
+  const [modalComment, setModalComment] = useState("");
+
+  // состояние отправки действий
+  const [actionLoading, setActionLoading] = useState(false);
 
   // тост
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -217,6 +253,83 @@ export const ListingDetailsPage: React.FC = () => {
       dateStyle: "short",
       timeStyle: "short",
     });
+
+  // ---------- обработка решений модерации ----------
+
+  const handleApprove = async () => {
+    if (!listing) return;
+
+    try {
+      setActionLoading(true);
+      const updated = await adsApi.approve(listing.id);
+      setAdRaw(updated);
+      showToast("Объявление одобрено");
+    } catch (err) {
+      console.error(err);
+      showToast("Ошибка: не удалось одобрить");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const openReasonModal = (decision: ModerationDecision) => {
+    if (decision === "approved") {
+      // одобрение без модалки
+      void handleApprove();
+      return;
+    }
+    setModalDecision(decision);
+    setIsModalOpen(true);
+  };
+
+  const handleModalConfirm = async () => {
+    if (!listing || !modalDecision) return;
+
+    if (!selectedReason.trim()) {
+      alert("Выберите причину");
+      return;
+    }
+
+    const comment =
+      modalComment.trim().length > 0 ? modalComment.trim() : undefined;
+
+    try {
+      setActionLoading(true);
+
+      let updated: Advertisement;
+
+      if (modalDecision === "rejected") {
+        updated = await adsApi.reject(listing.id, selectedReason, comment);
+        showToast("Объявление отклонено");
+      } else {
+        // returned → request-changes
+        updated = await adsApi.requestChanges(
+          listing.id,
+          selectedReason,
+          comment
+        );
+        showToast("Объявление отправлено на доработку");
+      }
+
+      setAdRaw(updated);
+      setIsModalOpen(false);
+      setModalDecision(null);
+      setModalComment("");
+      setSelectedReason(REASON_TEMPLATES[0]);
+    } catch (err) {
+      console.error(err);
+      showToast("Ошибка: не удалось выполнить действие");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleModalCancel = () => {
+    setIsModalOpen(false);
+    setModalDecision(null);
+    setModalComment("");
+    setSelectedReason(REASON_TEMPLATES[0]);
+  };
 
   // ---------- состояние загрузки / ошибки / отсутствие ----------
   if (loadingAd) {
@@ -387,11 +500,7 @@ export const ListingDetailsPage: React.FC = () => {
                           {item.moderator}
                         </span>
                         <span className={styles.historyDecision}>
-                          {item.decision === "approved"
-                            ? "Одобрено"
-                            : item.decision === "rejected"
-                              ? "Отклонено"
-                              : "На доработку"}
+                          {decisionLabel[item.decision]}
                         </span>
                         <span className={styles.historyDate}>
                           {formatDate(item.dateISO)}
@@ -417,7 +526,7 @@ export const ListingDetailsPage: React.FC = () => {
                   Решение модератора
                 </span>
                 <span className={styles.sideBlockHint}>
-                  POST-экшены подключим следующим шагом
+                  Выберите действие и при необходимости укажите причину
                 </span>
               </div>
 
@@ -425,21 +534,24 @@ export const ListingDetailsPage: React.FC = () => {
                 <button
                   type="button"
                   className={`${styles.actionButton} ${styles.actionApprove}`}
-                  onClick={() => showToast("Пока без API — только просмотр")}
+                  disabled={actionLoading}
+                  onClick={() => openReasonModal("approved")}
                 >
                   Одобрить
                 </button>
                 <button
                   type="button"
                   className={`${styles.actionButton} ${styles.actionReject}`}
-                  onClick={() => showToast("Пока без API — только просмотр")}
+                  disabled={actionLoading}
+                  onClick={() => openReasonModal("rejected")}
                 >
                   Отклонить
                 </button>
                 <button
                   type="button"
                   className={`${styles.actionButton} ${styles.actionReturn}`}
-                  onClick={() => showToast("Пока без API — только просмотр")}
+                  disabled={actionLoading}
+                  onClick={() => openReasonModal("returned")}
                 >
                   Вернуть на доработку
                 </button>
@@ -483,6 +595,58 @@ export const ListingDetailsPage: React.FC = () => {
             </div>
           </aside>
         </div>
+
+        {isModalOpen && (
+          <div className={styles.modalBackdrop}>
+            <div className={styles.modal}>
+              <h3 className={styles.modalTitle}>Выберите причину</h3>
+
+              <div className={styles.modalReasons}>
+                {REASON_TEMPLATES.map((reason) => (
+                  <label
+                    key={reason}
+                    className={styles.modalReasonRow}
+                  >
+                    <input
+                      type="radio"
+                      name="rejectReason"
+                      value={reason}
+                      checked={selectedReason === reason}
+                      onChange={() => setSelectedReason(reason)}
+                    />
+                    <span>{reason}</span>
+                  </label>
+                ))}
+              </div>
+
+              <textarea
+                className={styles.modalComment}
+                placeholder="Дополнительный комментарий (необязательно)"
+                value={modalComment}
+                onChange={(e) => setModalComment(e.target.value)}
+                rows={3}
+              />
+
+              <div className={styles.modalActions}>
+                <button
+                  type="button"
+                  className={styles.modalCancel}
+                  onClick={handleModalCancel}
+                >
+                  Отмена
+                </button>
+                <button
+                  type="button"
+                  className={styles.modalConfirm}
+                  disabled={actionLoading}
+                  onClick={handleModalConfirm}
+                >
+                  Подтвердить
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
