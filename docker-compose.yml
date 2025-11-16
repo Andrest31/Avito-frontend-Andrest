@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  server:
+    build: ./server
+    container_name: avito-server
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+
+  client:
+    build: ./client
+    container_name: avito-client
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - server
