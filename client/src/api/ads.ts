@@ -60,7 +60,16 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 
 export const adsApi = {
   async getAll(signal?: AbortSignal): Promise<AdsResponse> {
-    return request<AdsResponse>(`${API_BASE}/ads`, { signal });
+    const params = new URLSearchParams({
+      page: "1",
+      limit: "9999",
+      sortBy: "createdAt",
+      sortOrder: "desc",
+    });
+
+    return request<AdsResponse>(`${API_BASE}/ads?${params.toString()}`, {
+      signal,
+    });
   },
 
   async getById(id: number): Promise<Advertisement> {

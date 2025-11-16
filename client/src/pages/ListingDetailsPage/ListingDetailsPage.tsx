@@ -1,13 +1,58 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Header } from "../../shared/layout/Header";
 import styles from "./ListingDetailsPage.module.scss";
-
-// API
 import { adsApi, type Advertisement } from "../../api/ads";
 
-// -------- Normalizer ----------
-function normalize(ad: Advertisement) {
+// ---------- Тип нормализованного объявления под текущий UI ----------
+type NormalizedHistoryItem = {
+  id: number;
+  moderator: string;
+  decision: "approved" | "rejected" | "returned";
+  dateISO: string;
+  comment: string;
+};
+
+type NormalizedCharacteristic = {
+  key: string;
+  value: string;
+};
+
+type NormalizedSeller = {
+  name: string;
+  rating: number;
+  totalListings: number;
+  registeredAt: string;
+};
+
+type NormalizedListing = {
+  id: number;
+  title: string;
+  description: string;
+  price: string;
+  category: string;
+  status: Advertisement["status"];
+  priority: Advertisement["priority"];
+  createdAt: string;
+  views: number;
+  gallery: string[];
+  characteristics: NormalizedCharacteristic[];
+  seller: NormalizedSeller;
+  moderationHistory: NormalizedHistoryItem[];
+};
+
+// ---------- Лейблы статусов ----------
+const statusLabel: Record<Advertisement["status"], string> = {
+  pending: "На модерации",
+  approved: "Одобрено",
+  rejected: "Отклонено",
+  draft: "Черновик",
+};
+
+// ---------- Нормализация ответа API под твой UI ----------
+function normalizeAd(ad: Advertisement): NormalizedListing {
+  const randomViews = Math.floor(Math.random() * (120 - 5 + 1)) + 5;
+
   return {
     id: ad.id,
     title: ad.title,
@@ -23,105 +68,158 @@ function normalize(ad: Advertisement) {
       hour: "2-digit",
       minute: "2-digit",
     }),
-    views: 0,
-    gallery: ad.images,
-    characteristics: Object.entries(ad.characteristics).map(([key, value]) => ({
-      key,
-      value,
-    })),
+    views: randomViews,
+    gallery: ad.images && ad.images.length ? ad.images : ["/placeholder.png"],
+    characteristics: Object.entries(ad.characteristics || {}).map(
+      ([key, value]) => ({
+        key,
+        value,
+      })
+    ),
     seller: {
       name: ad.seller.name,
-      rating: Number(ad.seller.rating),
+      rating: Number(ad.seller.rating) || 0,
       totalListings: ad.seller.totalAds,
       registeredAt: new Date(ad.seller.registeredAt).toLocaleDateString(
         "ru-RU"
       ),
     },
-    moderationHistory: ad.moderationHistory.map((h) => ({
+    moderationHistory: (ad.moderationHistory || []).map((h) => ({
       id: h.id,
       moderator: h.moderatorName,
       decision:
         h.action === "approved"
           ? "approved"
           : h.action === "rejected"
-          ? "rejected"
-          : "returned",
+            ? "rejected"
+            : "returned",
       dateISO: h.timestamp,
       comment: h.comment,
     })),
   };
 }
 
-// ---------- Status labels ----------
-const statusLabel: Record<Advertisement["status"], string> = {
-  pending: "На модерации",
-  approved: "Одобрено",
-  rejected: "Отклонено",
-  draft: "Черновик",
-};
-
 export const ListingDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
-  const [adRaw, setAdRaw] = useState<Advertisement | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const numericId = Number(id);
 
+  // одно объявление
+  const [adRaw, setAdRaw] = useState<Advertisement | null>(null);
+  const [loadingAd, setLoadingAd] = useState(true);
+  const [adError, setAdError] = useState<string | null>(null);
+
+  // все id объявлений (для prev/next)
+  const [allIds, setAllIds] = useState<number[]>([]);
+  const [loadingIds, setLoadingIds] = useState(true);
+
+  // галерея
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  // Toast
+  // тост
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const toastRef = useRef<number | null>(null);
+  const toastTimeoutRef = useRef<number | null>(null);
 
+  // ---------- загрузка одного объявления ----------
   useEffect(() => {
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  setLoading(true);
-  setError(null);
-}, [id]);
+    if (!id || Number.isNaN(numericId)) return;
 
+    const controller = new AbortController();
+
+    adsApi
+      .getById(numericId)
+      .then((data) => {
+        setAdRaw(data);
+        setAdError(null);
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .catch((err: any) => {
+        if (err.name === "AbortError") return;
+        console.error(err);
+        setAdError(err.message ?? "Ошибка загрузки объявления");
+      })
+      .finally(() => {
+        setLoadingAd(false);
+      });
+
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [numericId]);
+
+  // ---------- загрузка списка объявлений для prev/next ----------
   useEffect(() => {
-  if (!id) return;
+    const controller = new AbortController();
 
-  const controller = new AbortController();
+    adsApi
+      .getAll(controller.signal)
+      .then((res) => {
+        const ids = res.ads.map((item) => item.id);
+        setAllIds(ids);
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .catch((err: any) => {
+        if (err.name === "AbortError") return;
+        console.error("Ошибка загрузки списка объявлений:", err);
+      })
+      .finally(() => setLoadingIds(false));
 
-  adsApi
-    .getById(Number(id))
-    .then((data) => setAdRaw(data))
-    .catch((err) => {
-      if (err.name !== "AbortError") setError(err.message);
-    })
-    .finally(() => setLoading(false));
+    return () => controller.abort();
+  }, []);
 
-  return () => controller.abort();
-}, [id]);
-
-
-  // ------ Toast cleanup ------
+  // ---------- тост ----------
   useEffect(() => {
     return () => {
-      if (toastRef.current) clearTimeout(toastRef.current);
+      if (toastTimeoutRef.current) {
+        window.clearTimeout(toastTimeoutRef.current);
+      }
     };
   }, []);
 
-  const showToast = (text: string) => {
-    if (toastRef.current) clearTimeout(toastRef.current);
-    setToastMessage(text);
-
-    toastRef.current = window.setTimeout(() => setToastMessage(null), 3000);
+  const showToast = (message: string) => {
+    if (toastTimeoutRef.current) {
+      window.clearTimeout(toastTimeoutRef.current);
+    }
+    setToastMessage(message);
+    toastTimeoutRef.current = window.setTimeout(() => {
+      setToastMessage(null);
+    }, 3000);
   };
 
-  // Not loaded / error
-  if (loading) {
-    return (
-      <div className={styles.page}>
-        <Header />
-        <main className={styles.main}>Загрузка объявления…</main>
-      </div>
-    );
-  }
+  // ---------- нормализованное объявление ----------
+  const listing: NormalizedListing | null = adRaw ? normalizeAd(adRaw) : null;
 
-  if (error || !adRaw) {
+  // ---------- prev / next ----------
+  const currentIndex = useMemo(() => {
+    if (!allIds.length || Number.isNaN(numericId)) return -1;
+    return allIds.indexOf(numericId);
+  }, [allIds, numericId]);
+
+  const prevId =
+    currentIndex > 0 && currentIndex !== -1
+      ? allIds[currentIndex - 1]
+      : undefined;
+
+  const nextId =
+    currentIndex !== -1 && currentIndex < allIds.length - 1
+      ? allIds[currentIndex + 1]
+      : undefined;
+
+  const handleNav = (targetId?: number) => {
+    if (!targetId) return;
+    navigate(`/item/${targetId}`);
+    setActiveImageIndex(0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleString("ru-RU", {
+      dateStyle: "short",
+      timeStyle: "short",
+    });
+
+  // ---------- состояние загрузки / ошибки / отсутствие ----------
+  if (loadingAd) {
     return (
       <div className={styles.page}>
         <Header />
@@ -133,34 +231,35 @@ export const ListingDetailsPage: React.FC = () => {
           >
             ← Назад к списку
           </button>
-          <div className={styles.card}>Ошибка загрузки объявления.</div>
+          <div className={styles.card}>Загрузка объявления…</div>
         </main>
       </div>
     );
   }
 
-  const listing = normalize(adRaw);
-
-  // -------- Prev/Next placeholders (will connect later) -------
-  const prevId = undefined;
-  const nextId = undefined;
+  if (adError || !listing) {
+    return (
+      <div className={styles.page}>
+        <Header />
+        <main className={styles.main}>
+          <button
+            type="button"
+            className={styles.backButton}
+            onClick={() => navigate("/list")}
+          >
+            ← Назад к списку
+          </button>
+          <div className={styles.card}>
+            {adError ?? "Объявление не найдено."}
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const historySorted = [...listing.moderationHistory].sort(
     (a, b) => new Date(a.dateISO).getTime() - new Date(b.dateISO).getTime()
   );
-
-  const formatDate = (iso: string) =>
-    new Date(iso).toLocaleString("ru-RU", {
-      dateStyle: "short",
-      timeStyle: "short",
-    });
-
-  const handleNav = (targetId?: number) => {
-    if (!targetId) return;
-    navigate(`/item/${targetId}`);
-    setActiveImageIndex(0);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
 
   return (
     <div className={styles.page}>
@@ -232,11 +331,10 @@ export const ListingDetailsPage: React.FC = () => {
                   alt={listing.title}
                   className={styles.mainImage}
                 />
-
                 <div className={styles.thumbnails}>
                   {listing.gallery.map((src, idx) => (
                     <button
-                      key={idx}
+                      key={`${src}-${idx}`}
                       type="button"
                       className={`${styles.thumbnailButton} ${
                         idx === activeImageIndex
@@ -266,9 +364,7 @@ export const ListingDetailsPage: React.FC = () => {
                   <tbody>
                     {listing.characteristics.map((row) => (
                       <tr key={row.key}>
-                        <td className={styles.characteristicsKey}>
-                          {row.key}
-                        </td>
+                        <td className={styles.characteristicsKey}>{row.key}</td>
                         <td className={styles.characteristicsValue}>
                           {row.value}
                         </td>
@@ -281,7 +377,6 @@ export const ListingDetailsPage: React.FC = () => {
 
             <section className={`${styles.card} ${styles.historyCard}`}>
               <h2 className={styles.sectionTitle}>История модерации</h2>
-
               <ul className={styles.historyList}>
                 {historySorted.map((item, idx) => (
                   <li key={item.id} className={styles.historyItem}>
@@ -295,20 +390,16 @@ export const ListingDetailsPage: React.FC = () => {
                           {item.decision === "approved"
                             ? "Одобрено"
                             : item.decision === "rejected"
-                            ? "Отклонено"
-                            : "На доработку"}
+                              ? "Отклонено"
+                              : "На доработку"}
                         </span>
                         <span className={styles.historyDate}>
                           {formatDate(item.dateISO)}
                         </span>
                       </div>
-
                       {item.comment && (
-                        <p className={styles.historyComment}>
-                          {item.comment}
-                        </p>
+                        <p className={styles.historyComment}>{item.comment}</p>
                       )}
-
                       {idx < historySorted.length - 1 && (
                         <div className={styles.historyConnector} />
                       )}
@@ -326,7 +417,7 @@ export const ListingDetailsPage: React.FC = () => {
                   Решение модератора
                 </span>
                 <span className={styles.sideBlockHint}>
-                  В следующем шаге подключим POST-запросы
+                  POST-экшены подключим следующим шагом
                 </span>
               </div>
 
@@ -334,23 +425,21 @@ export const ListingDetailsPage: React.FC = () => {
                 <button
                   type="button"
                   className={`${styles.actionButton} ${styles.actionApprove}`}
-                  onClick={() => showToast("Пока не подключено")}
+                  onClick={() => showToast("Пока без API — только просмотр")}
                 >
                   Одобрить
                 </button>
-
                 <button
                   type="button"
                   className={`${styles.actionButton} ${styles.actionReject}`}
-                  onClick={() => showToast("Пока не подключено")}
+                  onClick={() => showToast("Пока без API — только просмотр")}
                 >
                   Отклонить
                 </button>
-
                 <button
                   type="button"
                   className={`${styles.actionButton} ${styles.actionReturn}`}
-                  onClick={() => showToast("Пока не подключено")}
+                  onClick={() => showToast("Пока без API — только просмотр")}
                 >
                   Вернуть на доработку
                 </button>
@@ -363,13 +452,11 @@ export const ListingDetailsPage: React.FC = () => {
                   {listing.seller.name.charAt(0)}
                 </div>
                 <div className={styles.sellerInfo}>
-                  <div className={styles.sellerName}>
-                    {listing.seller.name}
-                  </div>
+                  <div className={styles.sellerName}>{listing.seller.name}</div>
                   <div className={styles.sellerStatus}>
                     Рейтинг {listing.seller.rating.toFixed(1)} ·{" "}
-                    {listing.seller.totalListings} объявлений · на площадке
-                    с {listing.seller.registeredAt}
+                    {listing.seller.totalListings} объявлений · на площадке с{" "}
+                    {listing.seller.registeredAt}
                   </div>
                 </div>
               </div>
@@ -379,7 +466,7 @@ export const ListingDetailsPage: React.FC = () => {
               <button
                 type="button"
                 className={styles.navButton}
-                disabled={!prevId}
+                disabled={prevId === undefined || loadingIds}
                 onClick={() => handleNav(prevId)}
               >
                 ← Предыдущее
@@ -388,7 +475,7 @@ export const ListingDetailsPage: React.FC = () => {
               <button
                 type="button"
                 className={styles.navButton}
-                disabled={!nextId}
+                disabled={nextId === undefined || loadingIds}
                 onClick={() => handleNav(nextId)}
               >
                 Следующее →
