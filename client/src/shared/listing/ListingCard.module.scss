@@ -105,10 +105,6 @@
   color: #d1d5db;
 }
 
-/* ======================
-   Статусы + приоритет на картинке
-   ====================== */
-
 .statusPills {
   position: absolute;
   left: 8px;
@@ -123,8 +119,6 @@
   flex-direction: row;
   gap: 6px;
 }
-
-/* Базовый вид бейджа статуса */
 
 .status {
   padding: 4px 10px;
@@ -147,8 +141,6 @@
   border-radius: 999px;
 }
 
-/* На модерации */
-
 .status_pending {
   background: linear-gradient(
     135deg,
@@ -162,8 +154,6 @@
 .status_pending::before {
   background: #f59e0b;
 }
-
-/* Одобрено */
 
 .status_approved {
   background: linear-gradient(
@@ -179,8 +169,6 @@
   background: #22c55e;
 }
 
-/* Отклонено */
-
 .status_rejected {
   background: linear-gradient(
     135deg,
@@ -194,8 +182,6 @@
 .status_rejected::before {
   background: #ef4444;
 }
-
-/* Приоритет */
 
 .priority {
   padding: 3px 9px;
@@ -220,13 +206,11 @@
   background: #9ca3af;
 }
 
-/* Срочное */
-
 .priorityUrgent {
   background: linear-gradient(
     135deg,
-    rgba(248, 113, 113, 0.95),
-    rgba(251, 146, 60, 0.95)
+    rgba(248, 63, 63, 0.95),
+    rgba(253, 8, 8, 0.95)
   );
   color: #fef2f2;
   border-color: rgba(248, 113, 113, 0.9);

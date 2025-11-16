@@ -376,3 +376,23 @@ body::-webkit-scrollbar {
   box-shadow: 0 8px 18px rgba(88, 28, 135, 0.18);
   transform: translateY(-1px);
 }
+
+.sortControl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.sortLabel {
+  color: #6b7280;
+}
+
+.sortSelectControl {
+  min-width: 220px;
+}
+
+.sortSelect {
+  border-radius: 999px !important;
+  font-size: 12px !important;
+}

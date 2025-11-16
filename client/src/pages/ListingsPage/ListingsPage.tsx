@@ -17,6 +17,13 @@ import {
 } from "../../shared/listing/mockListings";
 import { useSearch } from "../../shared/search/SearchContext";
 import styles from "./ListingsPage.module.scss";
+import {
+  Chip,
+  FormControl,
+  Select,
+  MenuItem,
+  type SelectChangeEvent,
+} from "@mui/material";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -92,7 +99,7 @@ export const ListingsPage: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+  const handleSortChange = (e: SelectChangeEvent): void => {
     setSortKey(e.target.value as SortKey);
     setCurrentPage(1);
   };
@@ -110,13 +117,13 @@ export const ListingsPage: React.FC = () => {
 
     if (filters.categories.length > 0) {
       result = result.filter((item) =>
-        filters.categories.includes(item.category),
+        filters.categories.includes(item.category)
       );
     }
 
     if (filters.priorities.length > 0) {
       result = result.filter((item) =>
-        filters.priorities.includes(item.priority),
+        filters.priorities.includes(item.priority)
       );
     }
 
@@ -132,14 +139,13 @@ export const ListingsPage: React.FC = () => {
       result = result.filter((item) => item.priceValue <= filters.priceTo!);
     }
 
-    // поиск из хедера
     if (query.trim()) {
       const s = query.trim().toLowerCase();
       result = result.filter(
         (item) =>
           item.title.toLowerCase().includes(s) ||
           item.category.toLowerCase().includes(s) ||
-          String(item.id).includes(s),
+          String(item.id).includes(s)
       );
     }
 
@@ -153,10 +159,8 @@ export const ListingsPage: React.FC = () => {
         case "price_desc":
           return b.priceValue - a.priceValue;
         case "date_asc":
-          // старые сверху
           return aDate - bDate;
         case "date_desc":
-          // новые сверху
           return bDate - aDate;
         case "priority":
           return b.priorityWeight - a.priorityWeight || bDate - aDate;
@@ -170,12 +174,12 @@ export const ListingsPage: React.FC = () => {
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredAndSorted.length / ITEMS_PER_PAGE),
+    Math.ceil(filteredAndSorted.length / ITEMS_PER_PAGE)
   );
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const pageItems = filteredAndSorted.slice(
     startIndex,
-    startIndex + ITEMS_PER_PAGE,
+    startIndex + ITEMS_PER_PAGE
   );
 
   const handlePageChange = (page: number) => {
@@ -199,20 +203,24 @@ export const ListingsPage: React.FC = () => {
             </span>
           </div>
           <div className={styles.toolbarRight}>
-            <label className={styles.sortControl}>
+            <div className={styles.sortControl}>
               <span className={styles.sortLabel}>Сортировка:</span>
-              <select
-                className={styles.sortSelect}
-                value={sortKey}
-                onChange={handleSortChange}
-              >
-                <option value="date_desc">По дате — новые сверху</option>
-                <option value="date_asc">По дате — старые сверху</option>
-                <option value="price_asc">По цене — по возрастанию</option>
-                <option value="price_desc">По цене — по убыванию</option>
-                <option value="priority">По приоритету</option>
-              </select>
-            </label>
+              <FormControl size="small" className={styles.sortSelectControl}>
+                <Select
+                  value={sortKey}
+                  onChange={handleSortChange}
+                  className={styles.sortSelect}
+                >
+                  <MenuItem value="date_desc">По дате — новые сверху</MenuItem>
+                  <MenuItem value="date_asc">По дате — старые сверху</MenuItem>
+                  <MenuItem value="price_asc">
+                    По цене — по возрастанию
+                  </MenuItem>
+                  <MenuItem value="price_desc">По цене — по убыванию</MenuItem>
+                  <MenuItem value="priority">По приоритету</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
             <div className={styles.viewToggle}>
               <button
                 type="button"
@@ -287,24 +295,22 @@ export const ListingsPage: React.FC = () => {
                       <td>{item.category}</td>
                       <td>{item.price}</td>
                       <td>
-                        <span
+                        <Chip
+                          label={statusLabel[item.status]}
                           className={`${styles.statusBadge} ${
                             styles[`status_${item.status}`]
                           }`}
-                        >
-                          {statusLabel[item.status]}
-                        </span>
+                        />
                       </td>
                       <td>
-                        <span
+                        <Chip
+                          label={priorityLabel[item.priority]}
                           className={`${styles.priorityBadge} ${
                             item.priority === "urgent"
                               ? styles.priorityBadgeUrgent
                               : ""
                           }`}
-                        >
-                          {priorityLabel[item.priority]}
-                        </span>
+                        />
                       </td>
                       <td>{item.createdAt}</td>
                     </tr>
