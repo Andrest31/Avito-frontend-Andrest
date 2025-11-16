@@ -77,6 +77,7 @@
   justify-content: space-between;
   gap: 16px;
 }
+
 .backButton {
   align-self: flex-start;
   margin-bottom: 8px;
@@ -124,13 +125,56 @@
   color: #6b7280;
 }
 
+/* === ЭКСПОРТ КНОПКИ === */
+
+.exportGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.exportButton {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  transition:
+    background 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+    color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.exportButtonCsv {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ecfdf5;
+  border-color: rgba(22, 163, 74, 0.9);
+}
+
+.exportButtonPdf {
+  background: linear-gradient(135deg, #4f46e5, #8b5cf6);
+  color: #eef2ff;
+  border-color: rgba(79, 70, 229, 0.9);
+}
+
+.exportButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.18);
+  filter: brightness(1.03);
+}
+
 :global(.MuiToggleButtonGroup-root).periodSwitch {
   display: inline-flex !important;
   gap: 4px;
   background: rgba(79, 70, 229, 0.08);
   padding: 4px;
-
-  border-radius: 9999px; 
+  border-radius: 9999px;
   overflow: hidden;
   box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.25);
 }
@@ -177,10 +221,10 @@
   flex-direction: column;
   gap: 4px;
   transition:
-+    border-color 0.32s cubic-bezier(0.22, 0.61, 0.36, 1),
-+    box-shadow 0.32s cubic-bezier(0.22, 0.61, 0.36, 1),
-+    transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1),
-+    background 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
+    border-color 0.32s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 0.32s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1),
+    background 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
   animation: cardIn 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
@@ -199,6 +243,7 @@
 .metricValue {
   font-size: 22px;
   font-weight: 700;
+  color: black;
 }
 
 .metricHint {
@@ -329,7 +374,7 @@
 
 .pieInner {
   position: absolute;
-  inset: 24px;  /* пончик потолще */
+  inset: 24px;
   border-radius: inherit;
   background: #ffffff;
 }
@@ -359,11 +404,11 @@
 }
 
 .legendDot1 {
-  background: #22c55e; 
+  background: #22c55e;
 }
 
 .legendDot2 {
-  background: #ef4444; 
+  background: #ef4444;
 }
 
 .legendDot3 {
@@ -409,11 +454,7 @@
 .categoryBar {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(
-    90deg,
-    #4f46e5,
-    #a855f7
-  );
+  background: linear-gradient(90deg, #4f46e5, #a855f7);
   transform-origin: left;
   transform: scaleX(1);
   animation: barGrowX 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -443,6 +484,11 @@
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .toolbarRight {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 768px) {
@@ -451,11 +497,15 @@
     padding: 0 16px;
   }
 }
+
+/* ==== DARK THEME ==== */
+
 :global(.theme-dark) .page {
   background: radial-gradient(circle at top left, #1e1b4b, #020617 65%, #000);
 }
 
-:global(.theme-dark) .main, .metricValue {
+:global(.theme-dark) .main,
+:global(.theme-dark) .metricValue {
   color: #e5e7eb;
 }
 
@@ -479,4 +529,21 @@
 :global(.theme-dark) .chartTitle,
 :global(.theme-dark) .subtitle {
   color: #9ca3af;
+}
+
+:global(.theme-dark) .exportButton {
+  background: #020617;
+  color: #e5e7eb;
+  border-color: #1f2937;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.8);
+}
+
+:global(.theme-dark) .exportButtonCsv {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  border-color: #16a34a;
+}
+
+:global(.theme-dark) .exportButtonPdf {
+  background: linear-gradient(135deg, #4f46e5, #8b5cf6);
+  border-color: #4f46e5;
 }

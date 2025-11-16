@@ -9,6 +9,7 @@ import {
 
 import { Card, ToggleButtonGroup, ToggleButton } from "@mui/material";
 
+
 type Period = "today" | "week" | "month";
 
 type Summary = {
@@ -170,6 +171,57 @@ export const StatsPage: React.FC = () => {
     if (value) setPeriod(value);
   };
 
+  const downloadFile = (content: BlobPart, filename: string, mime: string) => {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportCsv = () => {
+    const lines: string[][] = [];
+
+    const addRow = (...cols: (string | number)[]) => {
+      lines.push(cols.map((c) => String(c)));
+    };
+
+    addRow("Период", PERIOD_LABELS[period]);
+    addRow("");
+    addRow("Общие показатели", "");
+    addRow("Проверено сегодня", stats.totalToday);
+    addRow("Проверено за 7 дней", stats.totalWeek);
+    addRow("Проверено за 30 дней", stats.totalMonth);
+    addRow("Среднее время проверки", stats.avgReviewTime);
+    addRow("");
+    addRow("Распределение решений", "");
+    stats.decisions.forEach((d) => addRow(d.label, `${d.value}%`));
+    addRow("");
+    addRow("Категории", "Доля, %");
+    stats.categories.forEach((c) => addRow(c.label, c.value));
+
+    const csv = lines
+      .map((row) =>
+        row
+          .map((cell) => {
+            const safe = cell.replace(/"/g, '""');
+            return `"${safe}"`;
+          })
+          .join(";")
+      )
+      .join("\r\n");
+
+    downloadFile(
+      csv,
+      `moderation-stats-${period}.csv`,
+      "text/csv;charset=utf-8;"
+    );
+  };
+
   return (
     <div className={styles.page}>
       <Header />
@@ -190,6 +242,16 @@ export const StatsPage: React.FC = () => {
             </p>
           </div>
           <div className={styles.toolbarRight}>
+            <div className={styles.exportGroup}>
+              <button
+                type="button"
+                className={`${styles.exportButton} ${styles.exportButtonCsv}`}
+                onClick={handleExportCsv}
+              >
+                Экспорт CSV
+              </button>
+            </div>
+
             <ToggleButtonGroup
               className={styles.periodSwitch}
               value={period}

@@ -17,8 +17,6 @@ export type Filters = {
 type Props = {
   value: Filters;
   onChange: (next: Filters) => void;
-
-  // для массового выбора
   isSelectionMode: boolean;
   onToggleSelection: () => void;
   onBulkDecision: (d: ModerationDecision) => void;
@@ -184,7 +182,6 @@ export const SidebarFilters: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* НИЖНЯЯ ПОЛОСА: слева выбор + статусы, справа сброс */}
       <div className={styles.bottomRow}>
         <div className={styles.bottomLeft}>
           <button

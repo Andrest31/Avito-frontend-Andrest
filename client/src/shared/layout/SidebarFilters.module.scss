@@ -65,7 +65,6 @@
   transform: translateY(-1px);
 }
 
-/* PRICE */
 .priceRow {
   display: flex;
   align-items: center;
@@ -93,8 +92,6 @@
   gap: 4px;
   font-size: 12px;
 }
-
-/* НИЖНЯЯ ЛИНИЯ КНОПОК */
 
 .bottomRow {
   margin-top: 8px;
@@ -169,7 +166,6 @@
   box-shadow: 0 8px 16px rgba(15, 23, 42, 0.16);
 }
 
-/* цвета трёх кнопок статуса */
 .statusPending {
   border-color: #eab30866;
   background: #fef9c3;
@@ -188,9 +184,7 @@
   color: #991b1b;
 }
 
-/* сброс справа */
 .resetRow {
-  /* больше не используется, но пусть живёт для совместимости, если где-то дергается */
   display: none;
 }
 
@@ -213,8 +207,6 @@
   transform: translateY(-1px);
 }
 
-/* АДАПТИВ */
-
 @media (max-width: 960px) {
   .filtersBar {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -226,8 +218,6 @@
     grid-template-columns: 1fr;
   }
 }
-
-/* DARK THEME */
 
 :global(.theme-dark) .filtersWrapper {
   color: #e5e7eb;

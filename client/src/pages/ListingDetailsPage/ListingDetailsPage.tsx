@@ -50,7 +50,6 @@ export const ListingDetailsPage: React.FC = () => {
   );
   const [modalComment, setModalComment] = useState("");
 
-  // тост
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimeoutRef = useRef<number | null>(null);
 
