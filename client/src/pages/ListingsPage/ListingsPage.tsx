@@ -16,6 +16,7 @@ import {
   FormControl,
   Select,
   MenuItem,
+  type SelectChangeEvent,
 } from "@mui/material";
 import { adsApi, type Advertisement } from "../../api/ads";
 import { useSearch } from "../../shared/search/SearchContext";
@@ -69,9 +70,9 @@ export const ListingsPage: React.FC = () => {
     onlyWithPrice: false,
   });
 
-  const [viewMode, ] = useState<ViewMode>("grid");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortKey, setSortKey] = useState<SortKey>("date_desc");
-  const [currentPage, ] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [, setSelectedIds] = useState<number[]>([]);
@@ -100,6 +101,22 @@ export const ListingsPage: React.FC = () => {
 
     return () => controller.abort();
   }, []);
+
+  // смена фильтров — на первую страницу
+  const handleFiltersChange = (next: Filters) => {
+    setFilters(next);
+    setCurrentPage(1);
+  };
+
+  // смена сортировки — тоже на первую
+  const handleSortChange = (e: SelectChangeEvent) => {
+    setSortKey(e.target.value as SortKey);
+    setCurrentPage(1);
+  };
+
+  const handleViewChange = (mode: ViewMode) => {
+    setViewMode(mode);
+  };
 
   const filteredAndSorted = useMemo(() => {
     let result = [...listings];
@@ -156,41 +173,98 @@ export const ListingsPage: React.FC = () => {
     return result;
   }, [listings, filters, sortKey, query]);
 
-  
-  const pageItems = filteredAndSorted.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+  // 🔢 Пагинация
+  const hasResults = filteredAndSorted.length > 0;
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredAndSorted.length / ITEMS_PER_PAGE)
   );
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  const pageItems = filteredAndSorted.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
+
+  const handlePageChange = (page: number) => {
+    if (!hasResults) return;
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className={styles.page}>
       <Header />
       <main className={styles.main}>
         <header className={styles.toolbar}>
-          <div>
+          <div className={styles.toolbarLeft}>
             <h1 className={styles.title}>Лента модерации</h1>
             <span className={styles.meta}>
               Найдено {filteredAndSorted.length} объявлений
             </span>
           </div>
 
-          <div className={styles.sortControl}>
-            <span className={styles.sortLabel}>Сортировка:</span>
-            <FormControl size="small">
-              <Select value={sortKey} onChange={(e) => setSortKey(e.target.value as SortKey)}>
-                <MenuItem value="date_desc">По дате — новые сверху</MenuItem>
-                <MenuItem value="date_asc">По дате — старые сверху</MenuItem>
-                <MenuItem value="price_asc">По цене — по возрастанию</MenuItem>
-                <MenuItem value="price_desc">По цене — по убыванию</MenuItem>
-                <MenuItem value="priority">По приоритету</MenuItem>
-              </Select>
-            </FormControl>
+          <div className={styles.toolbarRight}>
+            <div className={styles.sortControl}>
+              <span className={styles.sortLabel}>Сортировка:</span>
+              <FormControl
+                size="small"
+                className={styles.sortSelectControl}
+              >
+                <Select
+                  value={sortKey}
+                  onChange={handleSortChange}
+                  className={styles.sortSelect}
+                >
+                  <MenuItem value="date_desc">По дате — новые сверху</MenuItem>
+                  <MenuItem value="date_asc">По дате — старые сверху</MenuItem>
+                  <MenuItem value="price_asc">
+                    По цене — по возрастанию
+                  </MenuItem>
+                  <MenuItem value="price_desc">
+                    По цене — по убыванию
+                  </MenuItem>
+                  <MenuItem value="priority">По приоритету</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+
+            <div className={styles.viewToggle}>
+              <button
+                type="button"
+                className={`${styles.viewButton} ${
+                  viewMode === "grid" ? styles.viewButtonActive : ""
+                }`}
+                onClick={() => handleViewChange("grid")}
+              >
+                ▇
+              </button>
+              <button
+                type="button"
+                className={`${styles.viewButton} ${
+                  viewMode === "row" ? styles.viewButtonActive : ""
+                }`}
+                onClick={() => handleViewChange("row")}
+              >
+                ▬
+              </button>
+              <button
+                type="button"
+                className={`${styles.viewButton} ${
+                  viewMode === "list" ? styles.viewButtonActive : ""
+                }`}
+                onClick={() => handleViewChange("list")}
+              >
+                ☰
+              </button>
+            </div>
           </div>
         </header>
 
         <SidebarFilters
           value={filters}
-          onChange={setFilters}
+          onChange={handleFiltersChange}
           isSelectionMode={isSelectionMode}
           onToggleSelection={() => {
             setIsSelectionMode((v) => !v);
@@ -203,28 +277,113 @@ export const ListingsPage: React.FC = () => {
           {apiLoading && <div>Загрузка…</div>}
           {apiError && <div className={styles.error}>{apiError}</div>}
 
-          {!apiLoading && !filteredAndSorted.length && (
+          {!apiLoading && !hasResults && !apiError && (
             <div className={styles.emptyState}>Нет объявлений</div>
           )}
 
-          {!apiLoading && filteredAndSorted.length > 0 && (
-            <div
-              className={
-                viewMode === "grid"
-                  ? styles.grid
-                  : viewMode === "row"
-                  ? styles.rowList
-                  : styles.listTable
-              }
-            >
-              {pageItems.map((item) => (
-                <Link key={item.id} to={`/item/${item.id}`} className={styles.cardLink}>
-                  <ListingCard item={item} mode={viewMode === "grid" ? "grid" : "row"} />
-                </Link>
-              ))}
-            </div>
+          {!apiLoading && hasResults && (
+            <>
+              {viewMode === "grid" ? (
+                <div className={styles.grid}>
+                  {pageItems.map((item) => (
+                    <Link
+                      key={item.id}
+                      to={`/item/${item.id}`}
+                      className={styles.cardLink}
+                    >
+                      <ListingCard
+                        item={item}
+                        mode="grid"
+                      />
+                    </Link>
+                  ))}
+                </div>
+              ) : viewMode === "list" ? (
+                <table className={styles.listTable}>
+                  <thead>
+                    <tr>
+                      <th>Название</th>
+                      <th>Категория</th>
+                      <th>Цена</th>
+                      <th>Статус</th>
+                      <th>Приоритет</th>
+                      <th>Дата</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pageItems.map((item) => (
+                      <tr key={item.id}>
+                        <td>
+                          <Link
+                            to={`/item/${item.id}`}
+                            className={styles.listTitleLink}
+                          >
+                            {item.title}
+                          </Link>
+                        </td>
+                        <td>{item.category}</td>
+                        <td>{item.price}</td>
+                        <td>{item.status}</td>
+                        <td>{item.priority}</td>
+                        <td>{item.createdAt}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className={styles.rowList}>
+                  {pageItems.map((item) => (
+                    <Link
+                      key={item.id}
+                      to={`/item/${item.id}`}
+                      className={styles.cardLink}
+                    >
+                      <ListingCard
+                        item={item}
+                        mode="row"
+                      />
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </section>
+
+        {/* 🔽 Пагинация снизу */}
+        <div className={styles.pagination}>
+          <button
+            type="button"
+            className={styles.pageNavButton}
+            disabled={currentPage === 1 || !hasResults}
+            onClick={() => handlePageChange(currentPage - 1)}
+          >
+            Назад
+          </button>
+
+          {hasResults &&
+            Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                type="button"
+                className={`${styles.pageButton} ${
+                  page === currentPage ? styles.pageButtonActive : ""
+                }`}
+                onClick={() => handlePageChange(page)}
+              >
+                {page}
+              </button>
+            ))}
+
+          <button
+            type="button"
+            className={styles.pageNavButton}
+            disabled={currentPage === totalPages || !hasResults}
+            onClick={() => handlePageChange(currentPage + 1)}
+          >
+            Вперёд
+          </button>
+        </div>
       </main>
     </div>
   );
