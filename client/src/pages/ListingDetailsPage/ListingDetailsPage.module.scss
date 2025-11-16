@@ -706,3 +706,91 @@
     max-width: calc(100% - 24px);
   }
 }
+
+:global(.theme-dark) .page {
+  background: radial-gradient(circle at top left, #1e1b4b, #020617 65%, #000);
+}
+
+:global(.theme-dark) .main {
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .card,
+:global(.theme-dark) .gallery {
+  background: #020617;
+  border-color: #1f2937;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
+}
+
+:global(.theme-dark) .title {
+  color: #f9fafb;
+}
+
+:global(.theme-dark) .metaRow,
+:global(.theme-dark) .sellerStatus,
+:global(.theme-dark) .sideBlockHint,
+:global(.theme-dark) .priceTopLabel {
+  color: #9ca3af;
+}
+
+:global(.theme-dark) .description {
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .backButton,
+:global(.theme-dark) .navButton {
+  background: #020617;
+  border-color: #1f2937;
+  color: #e5e7eb;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.7);
+}
+
+:global(.theme-dark) .navButton:disabled {
+  background: #020617;
+  border-color: #111827;
+}
+
+:global(.theme-dark) .modalBackdrop {
+  background: rgba(15, 23, 42, 0.7);
+}
+
+:global(.theme-dark) .modal {
+  background: #020617;
+  border: 1px solid #1f2937;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.95);
+}
+
+:global(.theme-dark) .modalTitle {
+  color: #f9fafb;
+}
+
+:global(.theme-dark) .modalReasonRow {
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .modalComment {
+  background: #020617;
+  border-color: #1f2937;
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .modalComment::placeholder {
+  color: #6b7280;
+}
+
+:global(.theme-dark) .historyBullet {
+  background: #6366f1;
+}
+
+:global(.theme-dark) .historyConnector {
+  background: #1f2937;
+}
+
+:global(.theme-dark) .historyDecision {
+  background: rgba(37, 99, 235, 0.15);
+  color: #bfdbfe;
+}
+
+:global(.theme-dark) .toast {
+  box-shadow: 0 18px 40px rgba(22, 163, 74, 0.65);
+}

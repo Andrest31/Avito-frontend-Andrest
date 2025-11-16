@@ -2,12 +2,14 @@ import React from "react";
 import styles from "./Header.module.scss";
 import { Link, useLocation } from "react-router-dom";
 import { useSearch } from "../search/SearchContext";
+import { useTheme } from "../theme/ThemeContext";
 
 export const Header: React.FC = () => {
   const location = useLocation();
   const isStatsPage = location.pathname === "/stats";
 
   const { query, setQuery } = useSearch();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <header className={styles.header}>
@@ -44,11 +46,38 @@ export const Header: React.FC = () => {
       </div>
 
       <div className={styles.headerRight}>
+        <button
+          type="button"
+          className={styles.themeToggle}
+          onClick={toggleTheme}
+          aria-label={
+            theme === "dark"
+              ? "Включить светлую тему"
+              : "Включить тёмную тему"
+          }
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className={styles.themeIcon}
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="4.5" />
+            <line x1="12" y1="2" x2="12" y2="5" />
+            <line x1="12" y1="19" x2="12" y2="22" />
+            <line x1="4.22" y1="4.22" x2="6.34" y2="6.34" />
+            <line x1="17.66" y1="17.66" x2="19.78" y2="19.78" />
+            <line x1="2" y1="12" x2="5" y2="12" />
+            <line x1="19" y1="12" x2="22" y2="12" />
+            <line x1="4.22" y1="19.78" x2="6.34" y2="17.66" />
+            <line x1="17.66" y1="6.34" x2="19.78" y2="4.22" />
+          </svg>
+        </button>
+
         <Link
           to="/stats"
           className={`${styles.statsButton} ${
             isStatsPage ? styles.statsButtonActive : ""
-          }`}
+          } ${isStatsPage ? styles.statsButtonDisabled : ""}`}
         >
           Статистика
         </Link>

@@ -1,6 +1,7 @@
 import React, { type ChangeEvent } from "react";
 import styles from "./SidebarFilters.module.scss";
 import type { ModerationStatus, Priority } from "../listing/ListingCard";
+import type { ModerationDecision } from "../listing/mockListings";
 
 const ALL_CATEGORIES = ["Электроника", "Мебель", "Одежда", "Услуги"];
 
@@ -16,9 +17,20 @@ export type Filters = {
 type Props = {
   value: Filters;
   onChange: (next: Filters) => void;
+
+  // для массового выбора
+  isSelectionMode: boolean;
+  onToggleSelection: () => void;
+  onBulkDecision: (d: ModerationDecision) => void;
 };
 
-export const SidebarFilters: React.FC<Props> = ({ value, onChange }) => {
+export const SidebarFilters: React.FC<Props> = ({
+  value,
+  onChange,
+  isSelectionMode,
+  onToggleSelection,
+  onBulkDecision,
+}) => {
   const toggleInArray = <T,>(arr: T[], v: T): T[] =>
     arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
 
@@ -172,8 +184,51 @@ export const SidebarFilters: React.FC<Props> = ({ value, onChange }) => {
         </div>
       </div>
 
-      <div className={styles.resetRow}>
-        <button type="button" className={styles.resetButton} onClick={handleReset}>
+      {/* НИЖНЯЯ ПОЛОСА: слева выбор + статусы, справа сброс */}
+      <div className={styles.bottomRow}>
+        <div className={styles.bottomLeft}>
+          <button
+            type="button"
+            className={`${styles.selectButton} ${
+              isSelectionMode ? styles.selectButtonActive : ""
+            }`}
+            onClick={onToggleSelection}
+          >
+            {isSelectionMode ? "Отменить выбор" : "Выбрать"}
+          </button>
+
+          {isSelectionMode && (
+            <div className={styles.selectionActions}>
+              <button
+                type="button"
+                className={`${styles.statusButton} ${styles.statusPending}`}
+                onClick={() => onBulkDecision("returned")}
+              >
+                На модерации
+              </button>
+              <button
+                type="button"
+                className={`${styles.statusButton} ${styles.statusApproved}`}
+                onClick={() => onBulkDecision("approved")}
+              >
+                Одобрить
+              </button>
+              <button
+                type="button"
+                className={`${styles.statusButton} ${styles.statusRejected}`}
+                onClick={() => onBulkDecision("rejected")}
+              >
+                Отклонить
+              </button>
+            </div>
+          )}
+        </div>
+
+        <button
+          type="button"
+          className={styles.resetButton}
+          onClick={handleReset}
+        >
           Сбросить фильтры
         </button>
       </div>

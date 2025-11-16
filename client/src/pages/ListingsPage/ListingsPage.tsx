@@ -313,51 +313,21 @@ export const ListingsPage: React.FC = () => {
           </div>
         </header>
 
-        <div className={styles.bulkBar}>
-          <button
-            type="button"
-            className={`${styles.bulkSelectButton} ${
-              isSelectionMode ? styles.bulkSelectButtonActive : ""
-            }`}
-            onClick={() =>
-              setIsSelectionMode((prev) => {
-                const next = !prev;
-                if (!next) setSelectedIds([]);
-                return next;
-              })
-            }
-          >
-            {isSelectionMode ? "Отменить выбор" : "Выбрать"}
-          </button>
+        
 
-          {isSelectionMode && (
-            <div className={styles.bulkStatusGroup}>
-              <button
-                type="button"
-                className={`${styles.bulkStatusButton} ${styles.bulkStatusPending}`}
-                onClick={() => applyBulkDecision("returned")}
-              >
-                На модерации
-              </button>
-              <button
-                type="button"
-                className={`${styles.bulkStatusButton} ${styles.bulkStatusApproved}`}
-                onClick={() => applyBulkDecision("approved")}
-              >
-                Одобрить
-              </button>
-              <button
-                type="button"
-                className={`${styles.bulkStatusButton} ${styles.bulkStatusRejected}`}
-                onClick={() => applyBulkDecision("rejected")}
-              >
-                Отклонить
-              </button>
-            </div>
-          )}
-        </div>
-
-        <SidebarFilters value={filters} onChange={handleFiltersChange} />
+        <SidebarFilters
+          value={filters}
+          onChange={handleFiltersChange}
+          isSelectionMode={isSelectionMode}
+          onToggleSelection={() =>
+            setIsSelectionMode((prev) => {
+              const next = !prev;
+              if (!next) setSelectedIds([]);
+              return next;
+            })
+          }
+          onBulkDecision={applyBulkDecision}
+        />
 
         <section className={styles.content}>
           {hasResults ? (

@@ -231,3 +231,102 @@
   font-size: 11px;
   color: #6b7280;
 }
+
+.themeToggle {
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(255, 255, 255, 0.95);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background-color 0.2s ease-out,
+    border-color 0.2s ease-out,
+    box-shadow 0.2s ease-out,
+    transform 0.2s ease-out;
+}
+
+.themeToggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+}
+
+.themeIcon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  color: #f59e0b;
+}
+
+/* опционально делаем кнопку статистики некликабельной на /stats */
+.statsButtonDisabled {
+  pointer-events: none;
+}
+
+/* === ТЁМНАЯ ТЕМА === */
+
+:global(.theme-dark) body {
+  background: #020617;
+  color: #e5e7eb;
+}
+
+/* шапка — тёмный сине-фиолетовый градиент */
+:global(.theme-dark) .header {
+  background: radial-gradient(circle at top left, #312e81, #020617 60%, #000);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.9);
+  border-bottom-color: rgba(15, 23, 42, 0.9);
+}
+
+:global(.theme-dark) .logoTitle {
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .logoSubtitle {
+  color: #9ca3af;
+}
+
+:global(.theme-dark) .searchInput {
+  background: rgba(15, 23, 42, 0.96);
+  border-color: rgba(51, 65, 85, 0.9);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+:global(.theme-dark) .searchField {
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .searchField::placeholder {
+  color: #6b7280;
+}
+
+:global(.theme-dark) .statsButton {
+  background: rgba(15, 23, 42, 0.96);
+  border-color: rgba(51, 65, 85, 0.9);
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .statsButtonActive {
+  background: #4f46e5;
+  border-color: #6366f1;
+  color: #f9fafb;
+  box-shadow: 0 8px 22px rgba(79, 70, 229, 0.6);
+}
+
+:global(.theme-dark) .headerProfile {
+  background: rgba(15, 23, 42, 0.96);
+}
+
+:global(.theme-dark) .themeToggle {
+  background: rgba(15, 23, 42, 0.96);
+  border-color: rgba(55, 65, 81, 0.9);
+}
+
+:global(.theme-dark) .themeIcon {
+  color: #fde68a;
+}

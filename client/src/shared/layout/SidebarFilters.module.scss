@@ -49,14 +49,23 @@
   padding: 4px 8px;
   font-size: 12px;
   cursor: pointer;
+  transition:
+    background-color 0.18s ease-out,
+    border-color 0.18s ease-out,
+    color 0.18s ease-out,
+    transform 0.18s ease-out,
+    box-shadow 0.18s ease-out;
 }
 
 .chipActive {
   background: #4f46e5;
   border-color: #4f46e5;
   color: #ffffff;
+  box-shadow: 0 6px 14px rgba(79, 70, 229, 0.35);
+  transform: translateY(-1px);
 }
 
+/* PRICE */
 .priceRow {
   display: flex;
   align-items: center;
@@ -85,20 +94,126 @@
   font-size: 12px;
 }
 
-.resetRow {
-  margin-top: 6px;
+/* НИЖНЯЯ ЛИНИЯ КНОПОК */
+
+.bottomRow {
+  margin-top: 8px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bottomLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.selectButton {
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  padding: 6px 14px;
+  font-size: 13px;
+  background: #ffffff;
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease-out,
+    border-color 0.18s ease-out,
+    box-shadow 0.18s ease-out,
+    transform 0.18s ease-out,
+    color 0.18s ease-out;
+}
+
+.selectButton:hover {
+  border-color: #a855f7;
+  background: #fdf7ff;
+  box-shadow: 0 8px 18px rgba(88, 28, 135, 0.18);
+  transform: translateY(-1px);
+}
+
+.selectButtonActive {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.35);
+  transform: none;
+}
+
+.selectionActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.statusButton {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease-out,
+    border-color 0.18s ease-out,
+    box-shadow 0.18s ease-out,
+    transform 0.18s ease-out,
+    color 0.18s ease-out;
+}
+
+.statusButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.16);
+}
+
+/* цвета трёх кнопок статуса */
+.statusPending {
+  border-color: #eab30866;
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.statusApproved {
+  border-color: #22c55e66;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.statusRejected {
+  border-color: #ef444466;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* сброс справа */
+.resetRow {
+  /* больше не используется, но пусть живёт для совместимости, если где-то дергается */
+  display: none;
 }
 
 .resetButton {
   border-radius: 999px;
   border: none;
-  padding: 4px 10px;
+  padding: 6px 12px;
   font-size: 12px;
   background: #e5e7eb;
   cursor: pointer;
+  transition:
+    background-color 0.18s ease-out,
+    box-shadow 0.18s ease-out,
+    transform 0.18s ease-out;
 }
+
+.resetButton:hover {
+  background: #e0e7ff;
+  box-shadow: 0 6px 14px rgba(148, 163, 184, 0.6);
+  transform: translateY(-1px);
+}
+
+/* АДАПТИВ */
 
 @media (max-width: 960px) {
   .filtersBar {
@@ -110,4 +225,101 @@
   .filtersBar {
     grid-template-columns: 1fr;
   }
+}
+
+/* DARK THEME */
+
+:global(.theme-dark) .filtersWrapper {
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .block {
+  background: #020617;
+  border-color: #1f2937;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85);
+}
+
+:global(.theme-dark) .blockTitle {
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .checkboxRow {
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .checkboxRow label span {
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .chip {
+  background: #020617;
+  border-color: #1f2937;
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .chipActive {
+  background: linear-gradient(135deg, #4f46e5, #8b5cf6);
+  border-color: #6366f1;
+  color: #f9fafb;
+}
+
+:global(.theme-dark) .priceInput {
+  background: #020617;
+  border-color: #1f2937;
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .priceInput::placeholder {
+  color: #6b7280;
+}
+
+:global(.theme-dark) .priceDash {
+  color: #9ca3af;
+}
+
+:global(.theme-dark) .onlyPriceRow {
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .selectButton {
+  background: #020617;
+  border-color: #1f2937;
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .selectButtonActive {
+  background: #4f46e5;
+  border-color: #6366f1;
+  color: #f9fafb;
+  box-shadow: 0 8px 22px rgba(79, 70, 229, 0.7);
+}
+
+:global(.theme-dark) .statusPending {
+  background: #45240a;
+  border-color: #eab30888;
+  color: #fde68a;
+}
+
+:global(.theme-dark) .statusApproved {
+  background: #064e3b;
+  border-color: #22c55e88;
+  color: #bbf7d0;
+}
+
+:global(.theme-dark) .statusRejected {
+  background: #7f1d1d;
+  border-color: #ef444488;
+  color: #fecaca;
+}
+
+:global(.theme-dark) .resetButton {
+  background: #020617;
+  border: 1px solid #1f2937;
+  color: #e5e7eb;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.8);
+}
+
+:global(.theme-dark) .resetButton:hover {
+  background: #020617;
+  border-color: #4f46e5;
 }

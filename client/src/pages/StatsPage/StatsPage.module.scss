@@ -451,3 +451,32 @@
     padding: 0 16px;
   }
 }
+:global(.theme-dark) .page {
+  background: radial-gradient(circle at top left, #1e1b4b, #020617 65%, #000);
+}
+
+:global(.theme-dark) .main, .metricValue {
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .metricCard,
+:global(.theme-dark) .chartCard,
+:global(.theme-dark) .card {
+  background: #020617 !important;
+  border-color: #1f2937;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+}
+
+:global(.theme-dark) .backButton {
+  background: #020617;
+  border-color: #1f2937;
+  color: #e5e7eb;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.7);
+}
+
+:global(.theme-dark) .metricLabel,
+:global(.theme-dark) .metricHint,
+:global(.theme-dark) .chartTitle,
+:global(.theme-dark) .subtitle {
+  color: #9ca3af;
+}

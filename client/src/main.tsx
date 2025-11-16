@@ -4,13 +4,16 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./app/App";
 import { SearchProvider } from "./shared/search/SearchContext";
 import "./app/global.scss";
+import { ThemeProvider } from "./shared/theme/ThemeContext";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <SearchProvider>
-        <App />
-      </SearchProvider>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <SearchProvider>
+          <App />
+        </SearchProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   </StrictMode>
 );

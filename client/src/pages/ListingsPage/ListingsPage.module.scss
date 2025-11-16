@@ -535,3 +535,97 @@ body::-webkit-scrollbar {
   border-radius: 999px !important;
   font-size: 12px !important;
 }
+
+:global(.theme-dark) .page {
+  background: radial-gradient(circle at top left, #1e1b4b, #020617 65%, #000);
+}
+
+:global(.theme-dark) .main {
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .listTable,
+:global(.theme-dark) .emptyState {
+  background: #020617;
+  border-color: #1f2937;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+}
+
+:global(.theme-dark) .grid .cardLink article,
+:global(.theme-dark) .rowList .cardLink article {
+  background: #020617;
+  border-color: #1f2937;
+}
+:global(.theme-dark) .meta,
+:global(.theme-dark) .sortLabel {
+  color: #9ca3af;
+}
+:global(.theme-dark) .bulkSelectButton {
+  background: rgba(15, 23, 42, 0.96);
+  border-color: rgba(51, 65, 85, 0.9);
+  color: #e5e7eb;
+}
+
+:global(.theme-dark) .bulkSelectButtonActive {
+  background: #4f46e5;
+  border-color: #6366f1;
+  color: #f9fafb;
+  box-shadow: 0 8px 22px rgba(79, 70, 229, 0.6);
+}
+
+:global(.theme-dark) .sortSelect {
+  background: #020617 !important;
+  color: #e5e7eb !important;
+  border-radius: 999px !important;
+  border: 1px solid #1f2937 !important;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.7);
+}
+
+/* текст внутри селекта */
+:global(.theme-dark) .sortSelect .MuiSelect-select {
+  color: #e5e7eb !important;
+}
+
+/* рамка (fieldset) */
+:global(.theme-dark) .sortSelect .MuiOutlinedInput-notchedOutline {
+  border-color: #1f2937 !important;
+}
+
+/* hover */
+:global(.theme-dark) .sortSelect:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #4f46e5 !important;
+}
+
+/* focus */
+:global(.theme-dark)
+  .sortSelect.Mui-focused
+  .MuiOutlinedInput-notchedOutline {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.45);
+}
+
+/* выпадающее меню */
+:global(.theme-dark) .MuiPaper-root.MuiMenu-paper {
+  background: #05081b !important;
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.9) !important;
+}
+
+:global(.theme-dark) .MuiMenuItem-root {
+  color: #e5e7eb !important;
+  font-size: 13px;
+}
+
+:global(.theme-dark) .MuiMenuItem-root:hover {
+  background: rgba(79, 70, 229, 0.3) !important;
+}
+
+:global(.theme-dark) .MuiMenuItem-root.Mui-selected {
+  background: rgba(79, 70, 229, 0.5) !important;
+  color: #ffffff !important;
+}
+
+:global(.theme-dark) .MuiMenuItem-root.Mui-selected:hover {
+  background: rgba(79, 70, 229, 0.65) !important;
+}
