@@ -1,33 +1,13 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Header } from "../../shared/layout/Header";
 import styles from "./StatsPage.module.scss";
-import {
-  getInitialListings,
-  type ListingWithMeta,
-  type ModerationHistoryItem,
-} from "../../shared/listing/mockListings";
-
 import { Card, ToggleButtonGroup, ToggleButton } from "@mui/material";
-
-
-type Period = "today" | "week" | "month";
-
-type Summary = {
-  total: number;
-  approvedPercent: number;
-  rejectedPercent: number;
-  reworkPercent: number;
-  avgReviewTime: string;
-  dailyActivity: { day: string; value: number }[];
-  decisions: { label: string; value: number }[];
-  categories: { label: string; value: number }[];
-};
-
-type ModeratedItem = {
-  listing: ListingWithMeta;
-  first: ModerationHistoryItem;
-  last: ModerationHistoryItem;
-};
+import {
+  statsApi,
+  type Period,
+  type ActivityPoint,
+  type StatsSummaryResponse,
+} from "../../api/stats";
 
 const PERIOD_LABELS: Record<Period, string> = {
   today: "Сегодня",
@@ -37,138 +17,161 @@ const PERIOD_LABELS: Record<Period, string> = {
 
 const DAY_LABELS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
-function isInPeriod(dateISO: string, period: Period): boolean {
-  const now = new Date();
-  const date = new Date(dateISO);
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+type NormalizedStats = {
+  totalToday: number;
+  totalWeek: number;
+  totalMonth: number;
+  approvedPercent: number;
+  rejectedPercent: number;
+  reworkPercent: number;
+  avgReviewTime: string;
+  dailyActivity: { day: string; value: number }[];
+  decisions: { label: string; value: number }[];
+  categories: { label: string; value: number }[];
+};
 
-  if (period === "today") return diffDays <= 1;
-  if (period === "week") return diffDays <= 7;
-  return diffDays <= 30;
+// ---------- форматирование / нормализация ----------
+
+// backend шлёт averageReviewTime в СЕКУНДАХ
+function formatAverageTime(raw: number): string {
+  if (!raw || raw <= 0) return "—";
+  const totalSeconds = Math.round(raw);
+  const minutes = Math.round(totalSeconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
 }
 
-function computeSummary(listings: ListingWithMeta[], period: Period): Summary {
-  const moderated: ModeratedItem[] = listings
-    .map<ModeratedItem | null>((listing) => {
-      const history = listing.moderationHistory;
-      if (!history.length) return null;
-      const first = history[0];
-      const last = history[history.length - 1];
-      return { listing, first, last };
-    })
-    .filter((x): x is ModeratedItem => x !== null)
-    .filter(({ last }) => isInPeriod(last.dateISO, period));
+function normalizeActivity(points: ActivityPoint[]): {
+  day: string;
+  value: number;
+}[] {
+  const counts = new Array(7).fill(0) as number[];
 
-  const total = moderated.length;
+  points.forEach((p) => {
+    const date = new Date(p.date);
+    if (Number.isNaN(date.getTime())) return;
 
-  let approved = 0;
-  let rejected = 0;
-  let rework = 0;
-
-  const perAdMinutes: number[] = [];
-  const categoryCounts = new Map<string, number>();
-  const daysCounts = new Array(7).fill(0) as number[];
-
-  moderated.forEach(({ listing, first, last }) => {
-    if (listing.status === "approved") approved++;
-    if (listing.status === "rejected") rejected++;
-    if (listing.status === "pending") rework++;
-
-    categoryCounts.set(
-      listing.category,
-      (categoryCounts.get(listing.category) || 0) + 1
-    );
-
-    const start = new Date(first.dateISO).getTime();
-    const end = new Date(last.dateISO).getTime();
-    const minutes = Math.max(1, Math.round((end - start) / (1000 * 60)));
-    perAdMinutes.push(minutes);
-
-    const dow = new Date(last.dateISO).getDay(); // 0 — Вс
+    const dow = date.getDay(); // 0 — Вс ... 6 — Сб
     const idx = dow === 0 ? 6 : dow - 1;
-    daysCounts[idx] += 1;
+
+    const total =
+      (p.approved || 0) + (p.rejected || 0) + (p.requestChanges || 0);
+    counts[idx] += total;
   });
 
-  const avgMinutes =
-    perAdMinutes.length === 0
-      ? 0
-      : Math.round(
-          perAdMinutes.reduce((sum, v) => sum + v, 0) / perAdMinutes.length
-        );
-
-  const hours = Math.floor(avgMinutes / 60);
-  const mins = avgMinutes % 60;
-  const avgReviewTime =
-    avgMinutes === 0
-      ? "—"
-      : `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
-
-  const approvedPercent = total ? Math.round((approved / total) * 100) : 0;
-  const rejectedPercent = total ? Math.round((rejected / total) * 100) : 0;
-  const reworkPercent = total ? Math.round((rework / total) * 100) : 0;
-
-  const dailyActivity = DAY_LABELS.map((day, idx) => ({
+  return DAY_LABELS.map((day, idx) => ({
     day,
-    value: daysCounts[idx],
+    value: counts[idx],
   }));
+}
 
+function buildNormalizedStats(
+  summary: StatsSummaryResponse | null,
+  activity: ActivityPoint[]
+): NormalizedStats {
+  const safeSummary: StatsSummaryResponse =
+    summary ??
+    ({
+      totalReviewed: 0,
+      totalReviewedToday: 0,
+      totalReviewedThisWeek: 0,
+      totalReviewedThisMonth: 0,
+      approvedPercentage: 0,
+      rejectedPercentage: 0,
+      requestChangesPercentage: 0,
+      averageReviewTime: 0,
+    } as StatsSummaryResponse);
+
+  const dailyActivity = normalizeActivity(activity);
+
+  // распределение решений просто берём из процентов summary
   const decisions = [
-    { label: "Одобрено", value: approvedPercent },
-    { label: "Отклонено", value: rejectedPercent },
-    { label: "На доработку", value: reworkPercent },
+    { label: "Одобрено", value: Math.round(safeSummary.approvedPercentage) },
+    { label: "Отклонено", value: Math.round(safeSummary.rejectedPercentage) },
+    {
+      label: "На доработку",
+      value: Math.round(safeSummary.requestChangesPercentage),
+    },
   ];
 
+  // категории пока пустые — честно покажем сообщение
   const categories: { label: string; value: number }[] = [];
-  categoryCounts.forEach((count, category) => {
-    const percent = total ? Math.round((count / total) * 100) : 0;
-    categories.push({ label: category, value: percent });
-  });
 
   return {
-    total,
-    approvedPercent,
-    rejectedPercent,
-    reworkPercent,
-    avgReviewTime,
+    totalToday: safeSummary.totalReviewedToday,
+    totalWeek: safeSummary.totalReviewedThisWeek,
+    totalMonth: safeSummary.totalReviewedThisMonth,
+    approvedPercent: safeSummary.approvedPercentage,
+    rejectedPercent: safeSummary.rejectedPercentage,
+    reworkPercent: safeSummary.requestChangesPercentage,
+    avgReviewTime: formatAverageTime(safeSummary.averageReviewTime),
     dailyActivity,
     decisions,
     categories,
   };
 }
 
+// ---------- компонент ----------
+
 export const StatsPage: React.FC = () => {
-  const [listings] = useState<ListingWithMeta[]>(() => getInitialListings());
-  const [period, setPeriod] = useState<Period>("today");
+  // по умолчанию логичнее смотреть неделю
+  const [period, setPeriod] = useState<Period>("week");
 
-  const summariesByPeriod = useMemo(() => {
-    return {
-      today: computeSummary(listings, "today"),
-      week: computeSummary(listings, "week"),
-      month: computeSummary(listings, "month"),
-    };
-  }, [listings]);
+  const [summary, setSummary] = useState<StatsSummaryResponse | null>(null);
+  const [activity, setActivity] = useState<ActivityPoint[]>([]);
 
-  const current = summariesByPeriod[period];
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const stats = {
-    totalToday: summariesByPeriod.today.total,
-    totalWeek: summariesByPeriod.week.total,
-    totalMonth: summariesByPeriod.month.total,
-    approvedPercent: current.approvedPercent,
-    rejectedPercent: current.rejectedPercent,
-    reworkPercent: current.reworkPercent,
-    avgReviewTime: current.avgReviewTime,
-    dailyActivity: current.dailyActivity,
-    decisions: current.decisions,
-    categories: current.categories,
-  };
+  useEffect(() => {
+    const controller = new AbortController();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true);
+    setError(null);
+
+    // 2 независимых запроса, без Promise.all — меньше шансов всё уронить
+    statsApi
+      .getSummary(period, controller.signal)
+      .then((data) => {
+        setSummary(data);
+      })
+      .catch((err) => {
+        if (err.name === "AbortError") return;
+        console.error("summary error", err);
+        setError("Не удалось загрузить графики статистики");
+        setSummary(null);
+      });
+
+    statsApi
+      .getActivity(period, controller.signal)
+      .then((data) => {
+        setActivity(data || []);
+      })
+      .catch((err) => {
+        if (err.name === "AbortError") return;
+        console.error("activity error", err);
+        setError("Не удалось загрузить графики статистики");
+        setActivity([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [period]);
+
+  const stats = useMemo(
+    () => buildNormalizedStats(summary, activity),
+    [summary, activity]
+  );
 
   const handlePeriodChange = (
     _: React.MouseEvent<HTMLElement>,
     value: Period | null
   ) => {
-    if (value) setPeriod(value);
+    if (!value || value === period) return;
+    setPeriod(value);
   };
 
   const downloadFile = (content: BlobPart, filename: string, mime: string) => {
@@ -240,6 +243,9 @@ export const StatsPage: React.FC = () => {
             <p className={styles.subtitle}>
               Сводка по проверенным объявлениям и эффективности работы.
             </p>
+            {error && (
+              <div className={styles.errorBanner}>{error}</div>
+            )}
           </div>
           <div className={styles.toolbarRight}>
             <div className={styles.exportGroup}>
@@ -247,6 +253,7 @@ export const StatsPage: React.FC = () => {
                 type="button"
                 className={`${styles.exportButton} ${styles.exportButtonCsv}`}
                 onClick={handleExportCsv}
+                disabled={loading}
               >
                 Экспорт CSV
               </button>
@@ -284,7 +291,9 @@ export const StatsPage: React.FC = () => {
 
           <Card className={styles.metricCard} elevation={0}>
             <span className={styles.metricLabel}>Одобрено</span>
-            <span className={styles.metricValue}>{stats.approvedPercent}%</span>
+            <span className={styles.metricValue}>
+              {Math.round(stats.approvedPercent)}%
+            </span>
             <span className={styles.metricHint}>
               Доля одобренных от всех решений
             </span>
@@ -292,7 +301,9 @@ export const StatsPage: React.FC = () => {
 
           <Card className={styles.metricCard} elevation={0}>
             <span className={styles.metricLabel}>Отклонено</span>
-            <span className={styles.metricValue}>{stats.rejectedPercent}%</span>
+            <span className={styles.metricValue}>
+              {Math.round(stats.rejectedPercent)}%
+            </span>
             <span className={styles.metricHint}>Включая нарушения правил</span>
           </Card>
 
@@ -332,10 +343,16 @@ export const StatsPage: React.FC = () => {
                 className={styles.pieStub}
                 style={{
                   background: `conic-gradient(
-          #22c55e 0deg ${stats.decisions[0].value * 3.6}deg,
-          #ef4444 ${stats.decisions[0].value * 3.6}deg ${(stats.decisions[0].value + stats.decisions[1].value) * 3.6}deg,
-          #facc15 ${(stats.decisions[0].value + stats.decisions[1].value) * 3.6}deg 360deg
-        )`,
+                    #22c55e 0deg ${stats.decisions[0].value * 3.6}deg,
+                    #ef4444 ${stats.decisions[0].value * 3.6}deg ${
+                      (stats.decisions[0].value + stats.decisions[1].value) *
+                      3.6
+                    }deg,
+                    #facc15 ${
+                      (stats.decisions[0].value + stats.decisions[1].value) *
+                      3.6
+                    }deg 360deg
+                  )`,
                 }}
               >
                 <div className={styles.pieInner} />
@@ -362,18 +379,26 @@ export const StatsPage: React.FC = () => {
               Проверенные объявления по категориям
             </h2>
             <div className={styles.categoriesChart}>
-              {stats.categories.map((item) => (
-                <div key={item.label} className={styles.categoryRow}>
-                  <span className={styles.categoryLabel}>{item.label}</span>
-                  <div className={styles.categoryBarWrapper}>
-                    <div
-                      className={styles.categoryBar}
-                      style={{ width: `${item.value}%` }}
-                    />
-                  </div>
-                  <span className={styles.categoryValue}>{item.value}%</span>
+              {stats.categories.length === 0 ? (
+                <div className={styles.emptyCategories}>
+                  Недостаточно данных по категориям
                 </div>
-              ))}
+              ) : (
+                stats.categories.map((item) => (
+                  <div key={item.label} className={styles.categoryRow}>
+                    <span className={styles.categoryLabel}>{item.label}</span>
+                    <div className={styles.categoryBarWrapper}>
+                      <div
+                        className={styles.categoryBar}
+                        style={{ width: `${item.value}%` }}
+                      />
+                    </div>
+                    <span className={styles.categoryValue}>
+                      {item.value}%
+                    </span>
+                  </div>
+                ))
+              )}
             </div>
           </Card>
         </section>
