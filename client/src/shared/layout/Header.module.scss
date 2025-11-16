@@ -181,7 +181,19 @@
   border-color: #4f46e5;
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(79, 70, 229, 0.35);
+
+  pointer-events: none;
+  cursor: default;
+  transform: none;
 }
+
+.statsButton.statsButtonActive:hover {
+  border-color: #4f46e5;
+  background: #4f46e5;
+  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.35);
+  transform: none;
+}
+
 
 .headerProfile {
   display: flex;

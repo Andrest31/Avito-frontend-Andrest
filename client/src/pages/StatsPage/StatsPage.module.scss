@@ -77,6 +77,29 @@
   justify-content: space-between;
   gap: 16px;
 }
+.backButton {
+  align-self: flex-start;
+  margin-bottom: 8px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  background: #ffffff;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.backButton:hover {
+  border-color: #a855f7;
+  background: #fdf7ff;
+  box-shadow: 0 8px 18px rgba(88, 28, 135, 0.18);
+  transform: translateY(-1px);
+}
 
 .toolbarLeft {
   display: flex;

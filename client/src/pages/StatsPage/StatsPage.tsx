@@ -175,6 +175,13 @@ export const StatsPage: React.FC = () => {
       <Header />
 
       <main className={styles.main}>
+        <button
+          type="button"
+          className={styles.backButton}
+          onClick={() => (window.location.href = "/list")}
+        >
+          ← Назад
+        </button>
         <header className={styles.toolbar}>
           <div className={styles.toolbarLeft}>
             <h1 className={styles.title}>Статистика модератора</h1>
