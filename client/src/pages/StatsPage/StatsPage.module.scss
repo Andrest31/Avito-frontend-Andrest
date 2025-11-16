@@ -59,7 +59,7 @@
   );
   display: flex;
   flex-direction: column;
-  animation: fadeInPage 0.35s ease-out;
+  animation: fadeInPage 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .main {
@@ -88,10 +88,10 @@
   background: #ffffff;
   cursor: pointer;
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease,
-    transform 0.2s ease;
+    border-color 0.3s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 0.3s cubic-bezier(0.22, 0.61, 0.36, 1),
+    background 0.3s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .backButton:hover {
@@ -177,17 +177,17 @@
   flex-direction: column;
   gap: 4px;
   transition:
-    border-color 0.18s ease-out,
-    box-shadow 0.18s ease-out,
-    transform 0.18s ease-out,
-    background 0.18s ease-out;
-  animation: cardIn 0.28s ease-out;
++    border-color 0.32s cubic-bezier(0.22, 0.61, 0.36, 1),
++    box-shadow 0.32s cubic-bezier(0.22, 0.61, 0.36, 1),
++    transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1),
++    background 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation: cardIn 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .metricCard:hover {
   border-color: #a855f7;
-  box-shadow: 0 14px 30px rgba(88, 28, 135, 0.22);
-  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(88, 28, 135, 0.18);
+  transform: translateY(-1px);
   background: #f9f5ff;
 }
 
@@ -227,13 +227,13 @@
     box-shadow 0.18s ease-out,
     transform 0.18s ease-out,
     background 0.18s ease-out;
-  animation: cardIn 0.3s ease-out;
+  animation: cardIn 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .chartCard:hover {
   border-color: #a855f7;
-  box-shadow: 0 16px 34px rgba(88, 28, 135, 0.24);
-  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(88, 28, 135, 0.2);
+  transform: translateY(-1px);
   background: #f9f5ff;
 }
 
@@ -270,14 +270,14 @@
   );
   box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);
   transform-origin: bottom;
-  animation: barGrowY 0.6s ease-out;
+  animation: barGrowY 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
   transition:
-    transform 0.18s ease-out,
-    box-shadow 0.18s ease-out;
+    transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .barColumn:hover .bar {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   box-shadow: 0 8px 18px rgba(99, 102, 241, 0.45);
 }
 
@@ -324,7 +324,7 @@
   transition:
     transform 0.18s ease-out,
     box-shadow 0.18s ease-out;
-  animation: pieSweep 0.55s ease-out;
+  animation: pieSweep 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .pieInner {
@@ -416,7 +416,7 @@
   );
   transform-origin: left;
   transform: scaleX(1);
-  animation: barGrowX 0.6s ease-out;
+  animation: barGrowX 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .categoryValue {
